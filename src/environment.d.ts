@@ -5,6 +5,20 @@ declare global {
       DATABASE_URL: string
       NEXT_PUBLIC_SERVER_URL: string
       VERCEL_PROJECT_PRODUCTION_URL: string
+      CRON_SECRET: string
+      PREVIEW_SECRET: string
+
+      // Transactional email
+      MAIL_FROM_ADDRESS: string
+      MAIL_FROM_NAME: string
+      MAIL_REPLY_TO: string
+      ZEPTOMAIL_API_KEY: string
+      ZEPTOMAIL_API_URL: string
+      SMTP_HOST: string
+      SMTP_PORT: string
+      SMTP_USER: string
+      SMTP_PASSWORD: string
+      SMTP_SECURE: string
     }
   }
 }

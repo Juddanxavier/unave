@@ -46,6 +46,33 @@ pnpx create-payload-app my-project -t website
 
 That's it! Changes made in `./src` will be reflected in your app. Follow the on-screen instructions to login and create your first admin user. Then check out [Production](#production) once you're ready to build and serve your app, and [Deployment](#deployment) when you're ready to go live.
 
+## Transactional email
+
+One mail path serves every message. The site renders a React Email template, sends it through ZeptoMail, and retries the same message over a plain SMTP relay when ZeptoMail fails. Payload's own email adapter points at the same module, so password resets and form notifications take the same route.
+
+Every logical send writes one row to the `email-log` collection under the **Email** group in the admin panel. Staff read the masked recipient, admins also see the full address. Nobody can create, change or delete a row through the API. Copy for the access link email lives in **Email settings**, and admins can send a test from there (five per user per rolling hour).
+
+Set these server only values in `.env` (see `.env.example`):
+
+| Key | Purpose |
+|---|---|
+| `MAIL_FROM_ADDRESS` | Verified sender address. Required for any send. |
+| `MAIL_FROM_NAME` | Default sender name. |
+| `MAIL_REPLY_TO` | Reply inbox. Required for any send. |
+| `ZEPTOMAIL_API_KEY` | ZeptoMail send token. |
+| `ZEPTOMAIL_API_URL` | Regional ZeptoMail endpoint. Defaults to the US host. |
+| `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD` | Fallback relay on a different provider. |
+| `SMTP_SECURE` | `true` for implicit TLS on port 465, otherwise `false` for STARTTLS. |
+
+The code lives in `src/email/`. Preview the template locally with `pnpm email:dev`.
+
+The log keeps personal data for 90 days. A daily job, `pruneEmailLog`, deletes older rows. Payload only schedules the task; schedule an external call so it runs:
+
+```bash
+curl -X POST http://localhost:3000/api/payload-jobs/run \
+  -H "Authorization: Bearer $CRON_SECRET"
+```
+
 ## How it works
 
 The Payload config is tailored specifically to the needs of most websites. It is pre-configured in the following ways:

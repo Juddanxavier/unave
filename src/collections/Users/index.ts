@@ -1,18 +1,20 @@
 import type { CollectionConfig } from 'payload'
 
-import { authenticated } from '../../access/authenticated'
+import { isAdmin, isAdminField } from '../../access/isAdmin'
+import { hasStaffRole } from '../../access/isStaff'
+import { staffOrSelf } from '../../access/staffOrSelf'
 
 export const Users: CollectionConfig = {
   slug: 'users',
   access: {
-    admin: authenticated,
-    create: authenticated,
-    delete: authenticated,
-    read: authenticated,
-    update: authenticated,
+    admin: ({ req: { user } }) => hasStaffRole(user),
+    create: isAdmin,
+    delete: isAdmin,
+    read: staffOrSelf,
+    update: staffOrSelf,
   },
   admin: {
-    defaultColumns: ['name', 'email'],
+    defaultColumns: ['name', 'email', 'role'],
     useAsTitle: 'name',
   },
   auth: true,
@@ -20,6 +22,30 @@ export const Users: CollectionConfig = {
     {
       name: 'name',
       type: 'text',
+    },
+    {
+      name: 'role',
+      type: 'select',
+      access: {
+        create: isAdminField,
+        update: isAdminField,
+      },
+      admin: {
+        description: 'Admins manage users. Staff run plans and subscriptions.',
+        position: 'sidebar',
+      },
+      defaultValue: 'admin',
+      options: [
+        {
+          label: 'Admin',
+          value: 'admin',
+        },
+        {
+          label: 'Staff',
+          value: 'staff',
+        },
+      ],
+      required: true,
     },
   ],
   timestamps: true,

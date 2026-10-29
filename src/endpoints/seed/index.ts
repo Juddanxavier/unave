@@ -50,7 +50,9 @@ export const seed = async ({
         slug: global,
         data: {
           navItems: [],
-        },
+          // The loop clears every seeded global, so the per slug data type is
+          // wider than this shared payload.
+        } as never,
         depth: 0,
         context: {
           disableRevalidate: true,
@@ -105,6 +107,7 @@ export const seed = async ({
         name: 'Demo Author',
         email: 'demo-author@example.com',
         password: 'password',
+        role: 'admin',
       },
     }),
     payload.create({

@@ -5,12 +5,19 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { EmailLog } from './collections/EmailLog'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
+import { Plans } from './collections/Plans'
 import { Posts } from './collections/Posts'
+import { Subscriptions } from './collections/Subscriptions'
 import { Users } from './collections/Users'
+import { unaveEmailAdapter } from './email/adapter'
+import { emailTestEndpoint } from './endpoints/emailTest'
 import { Footer } from './Footer/config'
+import { EmailSettings } from './globals/EmailSettings'
 import { Header } from './Header/config'
+import { pruneEmailLogTask } from './jobs/pruneEmailLog'
 import { plugins } from './plugins'
 import { defaultLexical } from '@/fields/defaultLexical'
 import { getServerSideURL } from './utilities/getURL'
@@ -27,6 +34,21 @@ export default buildConfig({
       // The `BeforeDashboard` component renders the 'welcome' block that you see after logging into your admin panel.
       // Feel free to delete this at any time. Simply remove the line below.
       beforeDashboard: ['@/components/BeforeDashboard'],
+      graphics: {
+        Icon: '@/components/AdminIcon',
+        Logo: '@/components/AdminLogo',
+      },
+    },
+    meta: {
+      description: 'Unave admin, food plans and subscriptions',
+      icons: [
+        {
+          rel: 'icon',
+          type: 'image/svg+xml',
+          url: '/favicon.svg',
+        },
+      ],
+      titleSuffix: '| Unave',
     },
     importMap: {
       baseDir: path.resolve(dirname),
@@ -62,9 +84,11 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users],
+  collections: [Pages, Posts, Media, Categories, Users, Plans, Subscriptions, EmailLog],
   cors: [getServerSideURL()].filter(Boolean),
-  globals: [Header, Footer],
+  email: unaveEmailAdapter,
+  endpoints: [emailTestEndpoint],
+  globals: [Header, Footer, EmailSettings],
   plugins,
   secret: process.env.PAYLOAD_SECRET,
   sharp,
@@ -87,6 +111,6 @@ export default buildConfig({
         return authHeader === `Bearer ${secret}`
       },
     },
-    tasks: [],
+    tasks: [pruneEmailLogTask],
   },
 })

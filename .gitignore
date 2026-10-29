@@ -13,6 +13,9 @@ public/media/
 public/robots.txt
 public/sitemap*.xml
 
+# TypeScript incremental build output
+tsconfig.tsbuildinfo
+
 
 # Playwright
 node_modules/
