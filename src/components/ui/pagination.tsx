@@ -26,22 +26,43 @@ const PaginationItem: React.FC<
 
 type PaginationLinkProps = {
   isActive?: boolean
+  /**
+   * When set, the link renders as a real `<a>`, so pagination works without
+   * JavaScript — the shadcn default renders a `<button>` and needs a script.
+   */
+  href?: string
 } & Pick<ButtonProps, 'size'> &
   React.ComponentProps<'button'>
 
-const PaginationLink = ({ className, isActive, size = 'icon', ...props }: PaginationLinkProps) => (
-  <button
-    aria-current={isActive ? 'page' : undefined}
-    className={cn(
-      buttonVariants({
-        size,
-        variant: isActive ? 'outline' : 'ghost',
-      }),
-      className,
-    )}
-    {...props}
-  />
-)
+const PaginationLink = ({
+  className,
+  href,
+  isActive,
+  size = 'icon',
+  ...props
+}: PaginationLinkProps) => {
+  const classes = cn(
+    buttonVariants({
+      size,
+      variant: isActive ? 'outline' : 'ghost',
+    }),
+    className,
+  )
+
+  if (href) {
+    // The callers that pass an `href` pass anchor-safe props only; the button-only
+    // keys such as `disabled` are meaningless on a link and never present.
+    const anchorProps = props as unknown as React.ComponentProps<'a'>
+
+    return (
+      <a aria-current={isActive ? 'page' : undefined} className={classes} href={href} {...anchorProps} />
+    )
+  }
+
+  return (
+    <button aria-current={isActive ? 'page' : undefined} className={classes} {...props} />
+  )
+}
 
 const PaginationPrevious = ({
   className,

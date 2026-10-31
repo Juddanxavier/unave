@@ -1,7 +1,6 @@
 import type { Payload } from 'payload'
 
 import type { EmailLog } from '@/payload-types'
-import { getServerSideURL } from '@/utilities/getURL'
 
 import {
   loadMailSettings,
@@ -16,10 +15,11 @@ import {
   stripHeaderBreaks,
   toRecipientText,
 } from './recipient'
-import { renderAccessLink } from './templates/render'
+import { renderCancellation } from './templates/render'
 import { sendSmtpMail } from './transports/smtp'
 import { sendZeptoMail } from './transports/zeptomail'
 import type {
+  CustomerAuthMailInput,
   MailResult,
   MailStatus,
   MailTransport,
@@ -102,22 +102,6 @@ const logAndReturn = async (
     ...(outcome.messageId ? { messageId: outcome.messageId } : {}),
     status: outcome.status,
     transport: outcome.transport,
-  }
-}
-
-const stampLinkSentAt = async (payload: Payload, subscriptionId: number): Promise<void> => {
-  try {
-    await payload.update({
-      collection: 'subscriptions',
-      id: subscriptionId,
-      data: { linkSentAt: new Date().toISOString() },
-      // A clean context, so the token issuance hook cannot rotate the link.
-      context: {},
-      depth: 0,
-      overrideAccess: true,
-    })
-  } catch {
-    payload.logger.error({ msg: 'Could not mark the access link as sent on the subscription.' })
   }
 }
 
@@ -240,15 +224,20 @@ const deliver = async (
   })
 }
 
+/**
+ * The one template mail left after the guest plan link went. It renders the
+ * cancellation message and delivers it; every other message on the site goes
+ * through `sendSystemMail` or `sendCustomerAuthMail`.
+ */
 export const sendTemplateMail = async (
   payload: Payload,
   input: TemplateMailInput,
 ): Promise<MailResult> => {
   const environment = readMailEnvironment()
   const settings: MailSettings = await loadMailSettings(payload)
-  const copy = settings.copy
   const recipientName = stripHeaderBreaks(input.recipientName) || undefined
-  const subject = stripHeaderBreaks(copy.subject) || 'Your Unave plan link'
+  const copy = settings.cancellation
+  const subject = stripHeaderBreaks(copy.subject) || 'Your Unave plan is cancelled'
   const base: DeliveryInput = {
     fromName: stripHeaderBreaks(settings.senderName ?? environment.fromName) || undefined,
     html: '',
@@ -261,46 +250,52 @@ export const sendTemplateMail = async (
     triggeredBy: input.triggeredBy,
   }
 
-  if (!input.token) {
-    return logAndReturn(payload, base, {
-      code: 'MISSING_TOKEN',
-      message: 'Access link cannot be sent without a token.',
-      status: 'failed',
-      transport: 'none',
-    })
-  }
-
-  const token = input.token.replace(/[\r\n]+/g, '')
-  const link = `${getServerSideURL()}/plan/${token}`
-
   let rendered: { html: string; text: string }
 
   try {
-    rendered = await renderAccessLink({ copy, link, recipientName })
+    rendered = await renderCancellation({
+      cancelledAt: input.cancelledAt,
+      copy,
+      planTitle: input.planTitle,
+      recipientName,
+    })
   } catch {
     return logAndReturn(payload, base, {
       code: 'RENDER_FAILED',
-      message: 'The access link message could not be rendered.',
+      message: 'The cancellation message could not be rendered.',
       status: 'failed',
       transport: 'none',
     })
   }
 
-  const result = await deliver(payload, environment, {
+  return deliver(payload, environment, {
     ...base,
     html: rendered.html,
     text: rendered.text,
   })
+}
 
-  if (
-    result.status === 'sent' &&
-    input.templateKey === 'accessLink' &&
-    input.subscriptionId !== undefined
-  ) {
-    await stampLinkSentAt(payload, input.subscriptionId)
+/**
+ * Account security mail. Kept apart from `sendSystemMail` so a password reset
+ * does not hide in the audit log under the generic `system` key.
+ */
+export const sendCustomerAuthMail = async (
+  payload: Payload,
+  input: CustomerAuthMailInput,
+): Promise<MailResult> => {
+  const environment = readMailEnvironment()
+  const recipient = normalizeRecipientText(toRecipientText(input.to))
+
+  const base: DeliveryInput = {
+    html: input.html,
+    recipientName: input.recipientName,
+    subject: stripHeaderBreaks(input.subject) || 'Your UNAVE account',
+    templateKey: 'customerAuth',
+    text: input.text,
+    to: recipient,
   }
 
-  return result
+  return deliver(payload, environment, base)
 }
 
 export const sendSystemMail = async (
@@ -319,6 +314,7 @@ export const sendSystemMail = async (
     templateKey: 'system',
     text: input.text ?? '',
     to: recipient,
+    triggeredBy: input.triggeredBy,
   }
 
   if (input.attachments && input.attachments.length > 0) {

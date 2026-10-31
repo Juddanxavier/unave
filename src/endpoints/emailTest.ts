@@ -1,7 +1,8 @@
 import type { Endpoint, PayloadRequest } from 'payload'
 
+import { hasAdminRole } from '@/access/isAdmin'
 import { isValidRecipient, normalizeRecipientText } from '@/email/recipient'
-import { sendTemplateMail } from '@/email/send'
+import { sendSystemMail } from '@/email/send'
 
 const HOUR_MS = 60 * 60 * 1000
 const RATE_LIMIT = 5
@@ -19,9 +20,18 @@ const readBody = async (req: PayloadRequest): Promise<TestBody> => {
   }
 }
 
+const TEST_SUBJECT = 'Unave test email'
+const TEST_TEXT =
+  'This is a test message from the Unave dashboard. If you can read it, the mail path works.'
+const TEST_HTML = `<p>${TEST_TEXT}</p>`
+
 /**
  * Admin only test send. Rejected requests (auth, validation, rate limit) write
  * no log row; a send that starts writes exactly one.
+ *
+ * The message is plain rather than a template, so a test can never be mistaken
+ * for a real customer email. It logs under the system key with the admin as the
+ * trigger, and the hourly limit counts that pair, which nothing else writes.
  */
 export const emailTestEndpoint: Endpoint = {
   path: '/email/test',
@@ -31,7 +41,7 @@ export const emailTestEndpoint: Endpoint = {
       return Response.json({ message: 'Sign in to send a test email.' }, { status: 401 })
     }
 
-    if (req.user.role !== 'admin') {
+    if (!hasAdminRole(req.user)) {
       return Response.json({ message: 'Only an admin can send a test email.' }, { status: 403 })
     }
 
@@ -49,7 +59,7 @@ export const emailTestEndpoint: Endpoint = {
       where: {
         and: [
           { triggeredBy: { equals: req.user.id } },
-          { templateKey: { equals: 'test' } },
+          { templateKey: { equals: 'system' } },
           { createdAt: { greater_than_equal: since } },
         ],
       },
@@ -62,11 +72,11 @@ export const emailTestEndpoint: Endpoint = {
       )
     }
 
-    const result = await sendTemplateMail(req.payload, {
-      recipientName: 'Sample Customer',
-      templateKey: 'test',
+    const result = await sendSystemMail(req.payload, {
+      html: TEST_HTML,
+      subject: TEST_SUBJECT,
+      text: TEST_TEXT,
       to,
-      token: 'sample-token',
       triggeredBy: req.user.id,
     })
 

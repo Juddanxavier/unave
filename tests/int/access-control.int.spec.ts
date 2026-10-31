@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest'
 
-import { isAdmin, isAdminField } from '@/access/isAdmin'
+import { hasAdminRole, isAdmin, isAdminField } from '@/access/isAdmin'
 import { hasStaffRole, isStaff } from '@/access/isStaff'
+import { staffOrPublished } from '@/access/staffOrPublished'
 import { staffOrSelf } from '@/access/staffOrSelf'
 
 const args = (user: unknown) => ({ req: { user } }) as any
@@ -52,6 +53,39 @@ describe('isAdminField', () => {
     expect(isAdminField(args(admin))).toBe(true)
     expect(isAdminField(args(staff))).toBe(false)
     expect(isAdminField(args(null))).toBe(false)
+  })
+})
+
+describe('staffOrPublished', () => {
+  it('lets staff read every document, drafts included', () => {
+    expect(staffOrPublished(args(admin))).toBe(true)
+    expect(staffOrPublished(args(staff))).toBe(true)
+  })
+
+  it('restricts a signed in customer to published documents', () => {
+    expect(staffOrPublished(args(customer))).toEqual({ _status: { equals: 'published' } })
+    expect(staffOrPublished(args(plainUser))).toEqual({ _status: { equals: 'published' } })
+  })
+
+  it('restricts an anonymous visitor to published documents', () => {
+    expect(staffOrPublished(args(null))).toEqual({ _status: { equals: 'published' } })
+    expect(staffOrPublished(args(undefined))).toEqual({ _status: { equals: 'published' } })
+  })
+
+  it('never grants a customer write shaped access to the CMS', () => {
+    // The four content collections gate create, update and delete on isStaff, so a
+    // customer reaching them must be false, not a query.
+    expect(isStaff(args(customer))).toBe(false)
+    expect(isStaff(args(plainUser))).toBe(false)
+  })
+})
+
+describe('hasAdminRole', () => {
+  it('accepts only the admin role', () => {
+    expect(hasAdminRole(admin)).toBe(true)
+    expect(hasAdminRole(staff)).toBe(false)
+    expect(hasAdminRole(customer)).toBe(false)
+    expect(hasAdminRole(null)).toBe(false)
   })
 })
 

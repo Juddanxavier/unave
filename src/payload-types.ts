@@ -64,6 +64,7 @@ export type SupportedTimezones =
 export interface Config {
   auth: {
     users: UserAuthOperations;
+    customers: CustomerAuthOperations;
   };
   blocks: {};
   collections: {
@@ -72,8 +73,11 @@ export interface Config {
     media: Media;
     categories: Category;
     users: User;
+    customers: Customer;
+    enquiries: Enquiry;
     plans: Plan;
     subscriptions: Subscription;
+    payments: Payment;
     'email-log': EmailLog;
     redirects: Redirect;
     forms: Form;
@@ -97,8 +101,11 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     categories: CategoriesSelect<false> | CategoriesSelect<true>;
     users: UsersSelect<false> | UsersSelect<true>;
+    customers: CustomersSelect<false> | CustomersSelect<true>;
+    enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     plans: PlansSelect<false> | PlansSelect<true>;
     subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
+    payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -131,7 +138,7 @@ export interface Config {
   widgets: {
     collections: CollectionsWidget;
   };
-  user: User;
+  user: User | Customer;
   jobs: {
     tasks: {
       pruneEmailLog: TaskPruneEmailLog;
@@ -145,6 +152,24 @@ export interface Config {
   };
 }
 export interface UserAuthOperations {
+  forgotPassword: {
+    email: string;
+    password: string;
+  };
+  login: {
+    email: string;
+    password: string;
+  };
+  registerFirstUser: {
+    email: string;
+    password: string;
+  };
+  unlock: {
+    email: string;
+    password: string;
+  };
+}
+export interface CustomerAuthOperations {
   forgotPassword: {
     email: string;
     password: string;
@@ -789,6 +814,83 @@ export interface Form {
   createdAt: string;
 }
 /**
+ * People who signed in with Google or signed up with an email address. Created by signing in, never by hand.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers".
+ */
+export interface Customer {
+  id: number;
+  name?: string | null;
+  /**
+   * Saved by the customer on their account page, and copied onto new plans.
+   */
+  phone?: string | null;
+  /**
+   * Saved by the customer on their account page, and copied onto new plans.
+   */
+  address?: {
+    line1?: string | null;
+    line2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    pincode?: string | null;
+  };
+  /**
+   * Optional. What the customer prefers to eat, so the kitchen knows.
+   */
+  foodPreference?: ('none' | 'vegetarian' | 'vegan' | 'eggetarian' | 'non-vegetarian') | null;
+  /**
+   * Whether a password is set, so a Google-only account can be told from one that also signs in with email. Maintained by sign-in; never edited by hand.
+   */
+  hasPassword?: boolean | null;
+  picture?: string | null;
+  /**
+   * The Google account id. Set by sign-in and never edited by hand.
+   */
+  googleId?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  email: string;
+  resetPasswordToken?: string | null;
+  resetPasswordExpiration?: string | null;
+  salt?: string | null;
+  hash?: string | null;
+  resetPasswordRequestedAt?: string | null;
+  _verified?: boolean | null;
+  _verificationToken?: string | null;
+  loginAttempts?: number | null;
+  lockUntil?: string | null;
+  sessions?:
+    | {
+        id: string;
+        createdAt?: string | null;
+        expiresAt: string;
+      }[]
+    | null;
+  password?: string | null;
+  collection: 'customers';
+}
+/**
+ * Messages from the contact form. One row per message, newest last.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries".
+ */
+export interface Enquiry {
+  id: number;
+  name: string;
+  email: string;
+  phone?: string | null;
+  message: string;
+  /**
+   * Tick when somebody has replied to this person.
+   */
+  handled?: boolean | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "plans".
  */
@@ -872,6 +974,10 @@ export interface Subscription {
     pincode: string;
   };
   plan: number | Plan;
+  /**
+   * The account this plan belongs to. Linked by email when a customer signs in with Google. A plan with no account still works through its private link.
+   */
+  customer?: (number | null) | Customer;
   status: 'new' | 'active' | 'cancel_requested' | 'cancelled' | 'expired';
   /**
    * Copied from the plan when the subscription is created.
@@ -894,6 +1000,10 @@ export interface Subscription {
    */
   endDate?: string | null;
   /**
+   * Set by checkout for the one-time payment of the current period. The period ends on its end date; renewal is a new payment.
+   */
+  razorpayOrderId?: string | null;
+  /**
    * UPI reference or bank note for the payment taken outside the app.
    */
   paymentReference?: string | null;
@@ -901,9 +1011,55 @@ export interface Subscription {
   adminNotes?: string | null;
   cancelRequestedAt?: string | null;
   cancelledAt?: string | null;
-  accessTokenHash?: string | null;
-  accessTokenExpiresAt?: string | null;
-  linkSentAt?: string | null;
+  /**
+   * Who stopped the plan. Set to guest by the plan page, customer by the account page, else staff.
+   */
+  cancelledBy?: ('guest' | 'customer' | 'staff') | null;
+  /**
+   * Required when the guest stopped the plan. Staff only.
+   */
+  cancellationReason?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * Every Razorpay payment for a plan: the first charge at checkout and one row per renewal. Written by the app, read only here.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments".
+ */
+export interface Payment {
+  id: number;
+  /**
+   * Razorpay payment id, for example pay_1234. One row per payment.
+   */
+  razorpayPaymentId: string;
+  /**
+   * The one-time Razorpay order the payment belongs to.
+   */
+  razorpayOrderId?: string | null;
+  subscription?: (number | null) | Subscription;
+  plan?: (number | null) | Plan;
+  /**
+   * In paise, exactly as Razorpay charged it.
+   */
+  amount: number;
+  currency: string;
+  status: 'paid' | 'failed';
+  /**
+   * How it was paid, for example upi, card or netbanking. Reported by Razorpay.
+   */
+  method?: string | null;
+  /**
+   * The address the payment was made with, for the audit trail.
+   */
+  email?: string | null;
+  contact?: string | null;
+  source: 'checkout' | 'webhook';
+  /**
+   * When Razorpay reported the payment.
+   */
+  eventAt?: string | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -924,7 +1080,7 @@ export interface EmailLog {
    */
   recipientMasked: string;
   recipientName?: string | null;
-  templateKey: 'accessLink' | 'test' | 'system';
+  templateKey: 'cancellation' | 'customerAuth' | 'system';
   subject: string;
   /**
    * The subscription the message belongs to, when there is one.
@@ -1164,12 +1320,24 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'customers';
+        value: number | Customer;
+      } | null)
+    | ({
+        relationTo: 'enquiries';
+        value: number | Enquiry;
+      } | null)
+    | ({
         relationTo: 'plans';
         value: number | Plan;
       } | null)
     | ({
         relationTo: 'subscriptions';
         value: number | Subscription;
+      } | null)
+    | ({
+        relationTo: 'payments';
+        value: number | Payment;
       } | null)
     | ({
         relationTo: 'email-log';
@@ -1196,10 +1364,15 @@ export interface PayloadLockedDocument {
         value: number | FolderInterface;
       } | null);
   globalSlug?: string | null;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'customers';
+        value: number | Customer;
+      };
   updatedAt: string;
   createdAt: string;
 }
@@ -1209,10 +1382,15 @@ export interface PayloadLockedDocument {
  */
 export interface PayloadPreference {
   id: number;
-  user: {
-    relationTo: 'users';
-    value: number | User;
-  };
+  user:
+    | {
+        relationTo: 'users';
+        value: number | User;
+      }
+    | {
+        relationTo: 'customers';
+        value: number | Customer;
+      };
   key?: string | null;
   value?:
     | {
@@ -1544,6 +1722,59 @@ export interface UsersSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "customers_select".
+ */
+export interface CustomersSelect<T extends boolean = true> {
+  name?: T;
+  phone?: T;
+  address?:
+    | T
+    | {
+        line1?: T;
+        line2?: T;
+        city?: T;
+        state?: T;
+        pincode?: T;
+      };
+  foodPreference?: T;
+  hasPassword?: T;
+  picture?: T;
+  googleId?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  email?: T;
+  resetPasswordToken?: T;
+  resetPasswordExpiration?: T;
+  salt?: T;
+  hash?: T;
+  resetPasswordRequestedAt?: T;
+  _verified?: T;
+  _verificationToken?: T;
+  loginAttempts?: T;
+  lockUntil?: T;
+  sessions?:
+    | T
+    | {
+        id?: T;
+        createdAt?: T;
+        expiresAt?: T;
+      };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "enquiries_select".
+ */
+export interface EnquiriesSelect<T extends boolean = true> {
+  name?: T;
+  email?: T;
+  phone?: T;
+  message?: T;
+  handled?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "plans_select".
  */
 export interface PlansSelect<T extends boolean = true> {
@@ -1585,20 +1816,41 @@ export interface SubscriptionsSelect<T extends boolean = true> {
         pincode?: T;
       };
   plan?: T;
+  customer?: T;
   status?: T;
   billingPeriod?: T;
   mealsPerWeek?: T;
   price?: T;
   startDate?: T;
   endDate?: T;
+  razorpayOrderId?: T;
   paymentReference?: T;
   paymentReceivedAt?: T;
   adminNotes?: T;
   cancelRequestedAt?: T;
   cancelledAt?: T;
-  accessTokenHash?: T;
-  accessTokenExpiresAt?: T;
-  linkSentAt?: T;
+  cancelledBy?: T;
+  cancellationReason?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "payments_select".
+ */
+export interface PaymentsSelect<T extends boolean = true> {
+  razorpayPaymentId?: T;
+  razorpayOrderId?: T;
+  subscription?: T;
+  plan?: T;
+  amount?: T;
+  currency?: T;
+  status?: T;
+  method?: T;
+  email?: T;
+  contact?: T;
+  source?: T;
+  eventAt?: T;
   updatedAt?: T;
   createdAt?: T;
 }
@@ -1901,11 +2153,39 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   createdAt?: T;
 }
 /**
+ * The top of every page: the announcement strip, menu links, the primary button, WhatsApp.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "header".
  */
 export interface Header {
   id: number;
+  /**
+   * The strip above the navbar on every page. Untick it and it disappears everywhere (design.md §6.2).
+   */
+  announcement?: {
+    enabled?: boolean | null;
+    /**
+     * The gold line on the left.
+     */
+    text?: string | null;
+    /**
+     * The quieter line beside the headline.
+     */
+    note?: string | null;
+    /**
+     * The underlined words on the right, for example "See plans".
+     */
+    linkLabel?: string | null;
+    /**
+     * The whole bar links here. A path such as /plans, or a full URL.
+     */
+    linkUrl?: string | null;
+    newTab?: boolean | null;
+  };
+  /**
+   * Shown in the desktop bar and in the mobile drawer. Six at most.
+   */
   navItems?:
     | {
         link: {
@@ -1926,40 +2206,93 @@ export interface Header {
         id?: string | null;
       }[]
     | null;
+  /**
+   * The pill on the right of the bar, repeated at the foot of the mobile menu.
+   */
+  cta: {
+    label: string;
+    /**
+     * A path such as /plans, or a full URL.
+     */
+    url: string;
+    newTab?: boolean | null;
+  };
+  /**
+   * The floating button at the bottom right. Leave the number empty and it stays hidden.
+   */
+  whatsapp?: {
+    /**
+     * Digits only, with the country code. For example: 919840821526
+     */
+    number?: string | null;
+    /**
+     * Optional. Appears in the chat box when the customer taps the button.
+     */
+    message?: string | null;
+  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
+ * The closing band on every page: tagline, link columns, contact, disclaimer.
+ *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "footer".
  */
 export interface Footer {
   id: number;
-  navItems?:
+  tagline?: string | null;
+  /**
+   * Two to three columns works best. The contact column is built from the group below.
+   */
+  columns?:
     | {
-        link: {
-          type?: ('reference' | 'custom') | null;
-          newTab?: boolean | null;
-          reference?:
-            | ({
-                relationTo: 'pages';
-                value: number | Page;
-              } | null)
-            | ({
-                relationTo: 'posts';
-                value: number | Post;
-              } | null);
-          url?: string | null;
-          label: string;
-        };
+        title: string;
+        links?:
+          | {
+              link: {
+                type?: ('reference' | 'custom') | null;
+                newTab?: boolean | null;
+                reference?:
+                  | ({
+                      relationTo: 'pages';
+                      value: number | Page;
+                    } | null)
+                  | ({
+                      relationTo: 'posts';
+                      value: number | Post;
+                    } | null);
+                url?: string | null;
+                label: string;
+              };
+              id?: string | null;
+            }[]
+          | null;
         id?: string | null;
       }[]
     | null;
+  /**
+   * Only the fields you fill in are shown. Leave all of them empty to hide the column.
+   */
+  contact?: {
+    phone?: string | null;
+    email?: string | null;
+    /**
+     * Digits only, with the country code. For example: 919840821526
+     */
+    whatsapp?: string | null;
+    address?: string | null;
+  };
+  /**
+   * The small line at the very bottom of the footer (design.md §6.15).
+   */
+  notice?: string | null;
+  copyright?: string | null;
   updatedAt?: string | null;
   createdAt?: string | null;
 }
 /**
- * Copy for the access link email. The sender address and reply address come from the server environment.
+ * Copy for the plan emails. The sender address and reply address come from the server environment.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "email-settings".
@@ -1979,9 +2312,9 @@ export interface EmailSetting {
    */
   replyToDisplay?: string | null;
   /**
-   * The message a guest receives with their secret plan link.
+   * The message a customer receives after cancelling their plan.
    */
-  accessLink?: {
+  cancellation?: {
     /**
      * Leave blank to use the default.
      */
@@ -1994,10 +2327,6 @@ export interface EmailSetting {
      * Leave blank to use the default.
      */
     intro?: string | null;
-    /**
-     * Leave blank to use the default.
-     */
-    buttonLabel?: string | null;
     /**
      * Leave blank to use the default.
      */
@@ -2033,6 +2362,16 @@ export interface PayloadJobsStat {
  * via the `definition` "header_select".
  */
 export interface HeaderSelect<T extends boolean = true> {
+  announcement?:
+    | T
+    | {
+        enabled?: T;
+        text?: T;
+        note?: T;
+        linkLabel?: T;
+        linkUrl?: T;
+        newTab?: T;
+      };
   navItems?:
     | T
     | {
@@ -2046,6 +2385,19 @@ export interface HeaderSelect<T extends boolean = true> {
               label?: T;
             };
         id?: T;
+      };
+  cta?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        newTab?: T;
+      };
+  whatsapp?:
+    | T
+    | {
+        number?: T;
+        message?: T;
       };
   updatedAt?: T;
   createdAt?: T;
@@ -2056,20 +2408,37 @@ export interface HeaderSelect<T extends boolean = true> {
  * via the `definition` "footer_select".
  */
 export interface FooterSelect<T extends boolean = true> {
-  navItems?:
+  tagline?: T;
+  columns?:
     | T
     | {
-        link?:
+        title?: T;
+        links?:
           | T
           | {
-              type?: T;
-              newTab?: T;
-              reference?: T;
-              url?: T;
-              label?: T;
+              link?:
+                | T
+                | {
+                    type?: T;
+                    newTab?: T;
+                    reference?: T;
+                    url?: T;
+                    label?: T;
+                  };
+              id?: T;
             };
         id?: T;
       };
+  contact?:
+    | T
+    | {
+        phone?: T;
+        email?: T;
+        whatsapp?: T;
+        address?: T;
+      };
+  notice?: T;
+  copyright?: T;
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;
@@ -2082,13 +2451,12 @@ export interface EmailSettingsSelect<T extends boolean = true> {
   senderName?: T;
   fromAddressDisplay?: T;
   replyToDisplay?: T;
-  accessLink?:
+  cancellation?:
     | T
     | {
         subject?: T;
         heading?: T;
         intro?: T;
-        buttonLabel?: T;
         footerNote?: T;
         signature?: T;
       };
@@ -2142,10 +2510,15 @@ export interface TaskSchedulePublish {
           value: number | Post;
         } | null);
     global?: string | null;
-    user?: {
-      relationTo: 'users';
-      value: number | User;
-    } | null;
+    user?:
+      | ({
+          relationTo: 'users';
+          value: number | User;
+        } | null)
+      | ({
+          relationTo: 'customers';
+          value: number | Customer;
+        } | null);
   };
   output?: unknown;
 }

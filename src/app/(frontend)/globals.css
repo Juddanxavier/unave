@@ -10,6 +10,11 @@
 @custom-variant xl (@media (width >= theme(--breakpoint-xl)));
 @custom-variant 2xl (@media (width >= theme(--breakpoint-2xl)));
 
+/* Height, not width. The account screens fill exactly one viewport, so on a short
+   screen the form tightens instead of growing a scrollbar (design.md §6.16). */
+@custom-variant short (@media (height < 54rem));
+@custom-variant shorter (@media (height < 44rem));
+
 @layer base {
   h1,
   h2,
@@ -17,6 +22,7 @@
   h4,
   h5,
   h6 {
+    font-family: var(--font-heading);
     font-weight: unset;
     font-size: unset;
   }
@@ -43,11 +49,89 @@
   --breakpoint-lg: 64rem;
   --breakpoint-xl: 80rem;
   --breakpoint-2xl: 86rem;
+
+  /* Type — Playfair Display for headings, Inter for body and UI (design.md §4) */
+  --font-sans: var(--font-inter);
+  --font-body: var(--font-inter);
+  --font-heading: var(--font-playfair);
   --font-mono: var(--font-geist-mono);
-  --font-sans: var(--font-geist-sans);
+
+  /* Type scale, desktop sizes; mobile overrides at the end of this file (design.md §4) */
+  --text-display: 3.75rem;
+  --text-display--line-height: 1.08;
+  --text-display--letter-spacing: -0.02em;
+  --text-display--font-weight: 700;
+  --text-h1: 2.75rem;
+  --text-h1--line-height: 1.15;
+  --text-h1--letter-spacing: -0.015em;
+  --text-h1--font-weight: 700;
+  --text-h2: 2.125rem;
+  --text-h2--line-height: 1.2;
+  --text-h2--letter-spacing: -0.01em;
+  --text-h2--font-weight: 700;
+  --text-h3: 1.375rem;
+  --text-h3--line-height: 1.35;
+  --text-h3--font-weight: 600;
+  --text-lead: 1.25rem;
+  --text-lead--line-height: 1.55;
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.65;
+  --text-caption: 0.875rem;
+  --text-caption--line-height: 1.5;
+  --text-caption--font-weight: 500;
+  --text-button: 1rem;
+  --text-button--line-height: 1;
+  --text-button--font-weight: 700;
+  --text-eyebrow: 0.8125rem;
+  --text-eyebrow--line-height: 1.2;
+  --text-eyebrow--letter-spacing: 0.12em;
+  --text-eyebrow--font-weight: 700;
+
+  /* Radius — soft and rounded, echoing the logo (design.md §5) */
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+  --radius-pill: 999px;
+
+  /* Elevation — soft, green-tinted (design.md §5) */
+  --shadow-sm: 0 1px 3px rgba(26, 75, 54, 0.08);
+  --shadow-md: 0 8px 24px rgba(26, 75, 54, 0.1);
+  --shadow-lg: 0 16px 40px rgba(26, 75, 54, 0.14);
 }
 
 @layer utilities {
+  /* The UNAVE lockup, recoloured from currentColor (design.md §2) */
+  .logo-lockup {
+    display: block;
+    height: var(--logo-height, 34px);
+    aspect-ratio: 1378 / 293;
+    background-color: currentColor;
+    -webkit-mask-image: url('/brand/lockup-horizontal.png');
+    mask-image: url('/brand/lockup-horizontal.png');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: 100% 100%;
+    mask-size: 100% 100%;
+  }
+
+  /* The logo swoosh as a decorative motif, cropped and set at low opacity (design.md §7) */
+  .swoosh {
+    display: block;
+    aspect-ratio: 378 / 293;
+    background-color: currentColor;
+    -webkit-mask-image: url('/brand/mark.png');
+    mask-image: url('/brand/mark.png');
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+    -webkit-mask-size: contain;
+    mask-size: contain;
+  }
+
   .container {
     width: 100%;
     margin-inline: auto;
@@ -87,80 +171,134 @@
 }
 
 :root {
-  --background: oklch(100% 0 0deg);
-  --foreground: oklch(14.5% 0 0deg);
-  --card: oklch(96.5% 0.005 265deg);
-  --card-foreground: oklch(14.5% 0 0deg);
-  --popover: oklch(100% 0 0deg);
-  --popover-foreground: oklch(14.5% 0 0deg);
-  --primary: oklch(20.5% 0 0deg);
-  --primary-foreground: oklch(98.5% 0 0deg);
-  --secondary: oklch(97% 0 0deg);
-  --secondary-foreground: oklch(20.5% 0 0deg);
-  --muted: oklch(97% 0 0deg);
-  --muted-foreground: oklch(55.6% 0 0deg);
-  --accent: oklch(97% 0 0deg);
-  --accent-foreground: oklch(20.5% 0 0deg);
-  --destructive: oklch(57.7% 0.245 27.325deg);
-  --destructive-foreground: oklch(57.7% 0.245 27.325deg);
-  --border: oklch(92.2% 0 0deg);
-  --input: oklch(92.2% 0 0deg);
-  --ring: oklch(70.8% 0 0deg);
-  --chart-1: oklch(64.6% 0.222 41.116deg);
-  --chart-2: oklch(60% 0.118 184.704deg);
-  --chart-3: oklch(39.8% 0.07 227.392deg);
-  --chart-4: oklch(82.8% 0.189 84.429deg);
-  --chart-5: oklch(76.9% 0.188 70.08deg);
-  --radius: 0.625rem;
-  --sidebar: oklch(98.5% 0 0deg);
-  --sidebar-foreground: oklch(14.5% 0 0deg);
-  --sidebar-primary: oklch(20.5% 0 0deg);
-  --sidebar-primary-foreground: oklch(98.5% 0 0deg);
-  --sidebar-accent: oklch(97% 0 0deg);
-  --sidebar-accent-foreground: oklch(20.5% 0 0deg);
-  --sidebar-border: oklch(92.2% 0 0deg);
-  --sidebar-ring: oklch(70.8% 0 0deg);
-  --success: oklch(78% 0.08 200deg);
-  --warning: oklch(89% 0.1 75deg);
-  --error: oklch(75% 0.15 25deg);
+  /* Brand palette, sampled from the logo (design.md §3.1, §3.2) */
+  --green-900: #0f2e21;
+  --green-800: #143b2a;
+  --green-700: #1a4b36;
+  --green-600: #256349;
+  --green-500: #3a7d5f;
+  --green-200: #cfe3d8;
+  --green-100: #e6f0ea;
+  --green-50: #f3f8f5;
+  --gold-600: #b8892a;
+  --gold-500: #d9a93f;
+  --gold-400: #f1c361;
+  --gold-300: #f6d88f;
+  --gold-100: #fcf1d6;
+  --cream: #faf7ef;
+  --white: #ffffff;
+  --ink-900: #1b2620;
+  --ink-600: #4a5a52;
+  --ink-400: #7c8a83;
+  --line: #e4e0d2;
+
+  /* Semantic (design.md §3.3) */
+  --success: #2e8b57;
+  --success-surface: #e6f4ec;
+  --error: #b3261e;
+  --error-surface: #fbe9e7;
+  --warning: #8a5a00;
+  --warning-surface: var(--gold-100);
+  --info-surface: var(--green-100);
+
+  /* Category accents, always paired with an icon and a label (design.md §3.4) */
+  --cat-healthy: #3a7d5f;
+  --cat-healthy-tint: #e6f0ea;
+  --cat-nutrition: #d9a93f;
+  --cat-nutrition-tint: #fcf1d6;
+  --cat-diet: #5b8c85;
+  --cat-diet-tint: #e4f0ee;
+  --cat-diabetes: #8a6d3b;
+  --cat-diabetes-tint: #f4ebdd;
+
+  /* Shape and spacing aliases, so design.md §14 can be pasted verbatim */
+  --r-sm: 8px;
+  --r-md: 16px;
+  --r-lg: 24px;
+  --r-pill: 999px;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* Surfaces and controls */
+  --background: var(--cream);
+  --foreground: var(--ink-900);
+  --card: var(--white);
+  --card-foreground: var(--ink-900);
+  --popover: var(--white);
+  --popover-foreground: var(--ink-900);
+  --primary: var(--green-700);
+  --primary-foreground: var(--cream);
+  --secondary: var(--green-50);
+  --secondary-foreground: var(--green-700);
+  --muted: var(--green-50);
+  --muted-foreground: var(--ink-600);
+  --accent: var(--green-100);
+  --accent-foreground: var(--green-700);
+  --destructive: var(--error);
+  --destructive-foreground: var(--white);
+  --border: var(--line);
+  --input: var(--line);
+  --ring: var(--green-500);
+  --chart-1: var(--green-700);
+  --chart-2: var(--gold-400);
+  --chart-3: var(--green-500);
+  --chart-4: var(--gold-600);
+  --chart-5: var(--green-200);
+  --radius: 16px;
+  --sidebar: var(--green-50);
+  --sidebar-foreground: var(--ink-900);
+  --sidebar-primary: var(--green-700);
+  --sidebar-primary-foreground: var(--cream);
+  --sidebar-accent: var(--green-100);
+  --sidebar-accent-foreground: var(--green-700);
+  --sidebar-border: var(--line);
+  --sidebar-ring: var(--green-500);
 }
 
 [data-theme='dark'] {
-  --background: oklch(14.5% 0 0deg);
-  --foreground: oklch(98.5% 0 0deg);
-  --card: oklch(17% 0 0deg);
-  --card-foreground: oklch(98.5% 0 0deg);
-  --popover: oklch(14.5% 0 0deg);
-  --popover-foreground: oklch(98.5% 0 0deg);
-  --primary: oklch(98.5% 0 0deg);
-  --primary-foreground: oklch(20.5% 0 0deg);
-  --secondary: oklch(26.9% 0 0deg);
-  --secondary-foreground: oklch(98.5% 0 0deg);
-  --muted: oklch(26.9% 0 0deg);
-  --muted-foreground: oklch(70.8% 0 0deg);
-  --accent: oklch(26.9% 0 0deg);
-  --accent-foreground: oklch(98.5% 0 0deg);
-  --destructive: oklch(39.6% 0.141 25.723deg);
-  --destructive-foreground: oklch(63.7% 0.237 25.331deg);
-  --border: oklch(26.9% 0 0deg);
-  --input: oklch(26.9% 0 0deg);
-  --ring: oklch(43.9% 0 0deg);
-  --chart-1: oklch(48.8% 0.243 264.376deg);
-  --chart-2: oklch(69.6% 0.17 162.48deg);
-  --chart-3: oklch(76.9% 0.188 70.08deg);
-  --chart-4: oklch(62.7% 0.265 303.9deg);
-  --chart-5: oklch(64.5% 0.246 16.439deg);
-  --sidebar: oklch(20.5% 0 0deg);
-  --sidebar-foreground: oklch(98.5% 0 0deg);
-  --sidebar-primary: oklch(48.8% 0.243 264.376deg);
-  --sidebar-primary-foreground: oklch(98.5% 0 0deg);
-  --sidebar-accent: oklch(26.9% 0 0deg);
-  --sidebar-accent-foreground: oklch(98.5% 0 0deg);
-  --sidebar-border: oklch(26.9% 0 0deg);
-  --sidebar-ring: oklch(43.9% 0 0deg);
-  --success: oklch(28% 0.1 200deg);
-  --warning: oklch(35% 0.08 70deg);
-  --error: oklch(45% 0.1 25deg);
+  /* Dark mode is optional: green-900 surfaces with cream text (design.md §12) */
+  --background: var(--green-900);
+  --foreground: var(--cream);
+  --card: var(--green-800);
+  --card-foreground: var(--cream);
+  --popover: var(--green-800);
+  --popover-foreground: var(--cream);
+  --primary: var(--gold-400);
+  --primary-foreground: var(--green-700);
+  --secondary: var(--green-800);
+  --secondary-foreground: var(--gold-400);
+  --muted: var(--green-800);
+  --muted-foreground: var(--green-200);
+  --accent: var(--green-800);
+  --accent-foreground: var(--gold-400);
+  --destructive: #e8665b;
+  --destructive-foreground: #2a0d0a;
+  --border: #2b5545;
+  --input: #2b5545;
+  --ring: var(--gold-400);
+  --chart-1: var(--gold-400);
+  --chart-2: var(--green-500);
+  --chart-3: var(--green-200);
+  --chart-4: var(--gold-300);
+  --chart-5: var(--green-600);
+  --success: #6fd39a;
+  --warning: var(--gold-300);
+  --error: #e8665b;
+  --sidebar: var(--green-800);
+  --sidebar-foreground: var(--cream);
+  --sidebar-primary: var(--gold-400);
+  --sidebar-primary-foreground: var(--green-700);
+  --sidebar-accent: var(--green-700);
+  --sidebar-accent-foreground: var(--cream);
+  --sidebar-border: #2b5545;
+  --sidebar-ring: var(--gold-400);
 }
 
 @theme inline {
@@ -188,10 +326,33 @@
   --color-chart-3: var(--chart-3);
   --color-chart-4: var(--chart-4);
   --color-chart-5: var(--chart-5);
-  --radius-sm: calc(var(--radius) - 4px);
-  --radius-md: calc(var(--radius) - 2px);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) + 4px);
+  /* Brand palette as utilities (design.md §3, §14) */
+  --color-green-50: var(--green-50);
+  --color-green-100: var(--green-100);
+  --color-green-200: var(--green-200);
+  --color-green-500: var(--green-500);
+  --color-green-600: var(--green-600);
+  --color-green-700: var(--green-700);
+  --color-green-800: var(--green-800);
+  --color-green-900: var(--green-900);
+  --color-gold-100: var(--gold-100);
+  --color-gold-300: var(--gold-300);
+  --color-gold-400: var(--gold-400);
+  --color-gold-500: var(--gold-500);
+  --color-gold-600: var(--gold-600);
+  --color-cream: var(--cream);
+  --color-ink-400: var(--ink-400);
+  --color-ink-600: var(--ink-600);
+  --color-ink-900: var(--ink-900);
+  --color-line: var(--line);
+  --color-cat-healthy: var(--cat-healthy);
+  --color-cat-healthy-tint: var(--cat-healthy-tint);
+  --color-cat-nutrition: var(--cat-nutrition);
+  --color-cat-nutrition-tint: var(--cat-nutrition-tint);
+  --color-cat-diet: var(--cat-diet);
+  --color-cat-diet-tint: var(--cat-diet-tint);
+  --color-cat-diabetes: var(--cat-diabetes);
+  --color-cat-diabetes-tint: var(--cat-diabetes-tint);
   --color-sidebar: var(--sidebar);
   --color-sidebar-foreground: var(--sidebar-foreground);
   --color-sidebar-primary: var(--sidebar-primary);
@@ -210,8 +371,35 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground min-h-[100vh] flex flex-col;
+    @apply bg-background text-foreground font-body min-h-[100vh] flex flex-col;
   }
+}
+
+/* Mobile sizes from the type scale (design.md §4) */
+@media (width < 48rem) {
+  :root {
+    --text-display: 2.25rem;
+    --text-h1: 2rem;
+    --text-h2: 1.625rem;
+    --text-h3: 1.25rem;
+    --text-lead: 1.0625rem;
+    --text-body: 1rem;
+  }
+}
+
+/* Scrolled header: solid green bar with a gold logo and gold links (design.md §6.2) */
+.site-header[data-scrolled='true'] {
+  --primary: var(--gold-400);
+  background-color: var(--green-700);
+  border-bottom-color: var(--green-800);
+  color: var(--cream);
+}
+
+/* The announcement strip collapses to zero height when it hides. Without this the
+   browser's scroll anchoring compensates for the shrinking page, which reads as a
+   scroll upwards and makes the strip pop straight back open. */
+html {
+  overflow-anchor: none;
 }
 
 html {

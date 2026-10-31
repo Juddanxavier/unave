@@ -1,34 +1,28 @@
 import { describe, expect, it } from 'vitest'
 
-import { defaultAccessLinkCopy } from '../../src/email/copy'
-import { renderAccessLink } from '../../src/email/templates/render'
+import { renderCustomerAuth } from '../../src/email/templates/render'
 
-const link = 'https://unave.test/plan/raw-token-value'
-const copy = { ...defaultAccessLinkCopy, subject: 'Subject from settings' }
+const link = 'https://unave.test/verify-email?token=raw-token-value'
 
-describe('access link rendering', () => {
-  it('puts every copy field and the link into the HTML body', async () => {
-    const { html } = await renderAccessLink({ copy, link })
+describe('account email rendering', () => {
+  it('puts the link and the button label into the HTML body', async () => {
+    const { html } = await renderCustomerAuth({ action: 'verify', link })
 
-    expect(html).toContain(copy.heading)
-    expect(html).toContain(copy.intro)
-    expect(html).toContain(copy.buttonLabel)
-    expect(html).toContain(copy.footerNote)
-    expect(html).toContain(copy.signature)
+    expect(html).toContain('Confirm your UNAVE account')
+    expect(html).toContain('Confirm my email')
     expect(html).toContain(`href="${link}"`)
   })
 
-  it('puts the link and copy into the plain text body', async () => {
-    const { text } = await renderAccessLink({ copy, link })
+  it('puts the link into the plain text body', async () => {
+    const { text } = await renderCustomerAuth({ action: 'reset', link })
 
     expect(text).toContain(link)
-    expect(text).toContain(copy.buttonLabel)
-    expect(text).toContain(copy.signature)
+    expect(text).toContain('Choose a new password')
   })
 
   it('escapes a recipient name instead of rendering markup', async () => {
-    const { html } = await renderAccessLink({
-      copy,
+    const { html } = await renderCustomerAuth({
+      action: 'verify',
       link,
       recipientName: '<script>alert("x")</script>',
     })
@@ -38,21 +32,19 @@ describe('access link rendering', () => {
   })
 
   it('greets the recipient by name when one is given', async () => {
-    const { html, text } = await renderAccessLink({ copy, link, recipientName: 'Priya' })
+    const { html, text } = await renderCustomerAuth({
+      action: 'verify',
+      link,
+      recipientName: 'Priya',
+    })
 
     expect(html.replace(/<!-- -->/g, '')).toContain('Hi Priya,')
     expect(text).toContain('Hi Priya,')
   })
 
   it('skips the greeting line when no name is given', async () => {
-    const { text } = await renderAccessLink({ copy, link })
+    const { text } = await renderCustomerAuth({ action: 'verify', link })
 
     expect(text).not.toContain('Hi ,')
-  })
-
-  it('does not put the subject into the body, the caller sends it separately', async () => {
-    const { html } = await renderAccessLink({ copy, link })
-
-    expect(html).not.toContain('Subject from settings')
   })
 })

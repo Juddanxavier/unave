@@ -3,27 +3,14 @@ import React from 'react'
 
 interface Props {
   className?: string
-  loading?: 'lazy' | 'eager'
-  priority?: 'auto' | 'high' | 'low'
 }
 
-export const Logo = (props: Props) => {
-  const { loading: loadingFromProps, priority: priorityFromProps, className } = props
-
-  const loading = loadingFromProps || 'lazy'
-  const priority = priorityFromProps || 'low'
-
-  return (
-    /* eslint-disable @next/next/no-img-element */
-    <img
-      alt="Payload Logo"
-      width={193}
-      height={34}
-      loading={loading}
-      fetchPriority={priority}
-      decoding="async"
-      className={clsx('max-w-[9.375rem] w-full h-[34px]', className)}
-      src="https://raw.githubusercontent.com/payloadcms/payload/3.x/packages/ui/src/assets/payload-logo-light.svg"
-    />
-  )
-}
+/**
+ * The UNAVE lockup: mark left, wordmark right (design.md §2).
+ *
+ * The asset is white on transparent and applied as a CSS mask, so the logo takes
+ * its colour from `currentColor` — deep green on light surfaces, gold on dark.
+ */
+export const Logo = ({ className }: Props) => (
+  <span className={clsx('logo-lockup', className)} role="img" aria-label="UNAVE" />
+)

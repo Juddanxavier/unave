@@ -1,6 +1,6 @@
 import type { Payload } from 'payload'
 
-import { defaultAccessLinkCopy, mergeAccessLinkCopy, type AccessLinkCopy } from './copy'
+import { defaultCancellationCopy, mergeCancellationCopy, type CancellationCopy } from './copy'
 
 export type ZeptoMailConfig = {
   apiKey: string
@@ -24,7 +24,7 @@ export type MailEnvironment = {
 }
 
 export type MailSettings = {
-  copy: AccessLinkCopy
+  cancellation: CancellationCopy
   senderName?: string
 }
 
@@ -78,13 +78,16 @@ export const loadMailSettings = async (payload: Payload): Promise<MailSettings> 
   try {
     const doc = await payload.findGlobal({ slug: 'email-settings', depth: 0 })
     const settings = doc as
-      | { accessLink?: Parameters<typeof mergeAccessLinkCopy>[0]; senderName?: string | null }
+      | {
+          cancellation?: Parameters<typeof mergeCancellationCopy>[0]
+          senderName?: string | null
+        }
       | null
       | undefined
     const senderName = settings?.senderName?.trim()
 
     return {
-      copy: settings?.accessLink ? mergeAccessLinkCopy(settings.accessLink) : defaultAccessLinkCopy,
+      cancellation: mergeCancellationCopy(settings?.cancellation),
       senderName: senderName && senderName.length > 0 ? senderName : undefined,
     }
   } catch {
@@ -92,6 +95,6 @@ export const loadMailSettings = async (payload: Payload): Promise<MailSettings> 
       msg: 'Could not read the email settings global. Falling back to the code defaults.',
     })
 
-    return { copy: defaultAccessLinkCopy }
+    return { cancellation: defaultCancellationCopy }
   }
 }

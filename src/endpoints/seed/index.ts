@@ -48,11 +48,9 @@ export const seed = async ({
     globals.map((global) =>
       payload.updateGlobal({
         slug: global,
-        data: {
-          navItems: [],
-          // The loop clears every seeded global, so the per slug data type is
-          // wider than this shared payload.
-        } as never,
+        // Both globals are written in full further down, so there is nothing
+        // shared to unset here.
+        data: {} as never,
         depth: 0,
         context: {
           disableRevalidate: true,
@@ -224,7 +222,43 @@ export const seed = async ({
     payload.updateGlobal({
       slug: 'header',
       data: {
+        announcement: {
+          enabled: true,
+          text: "This week's menu is live",
+          note: 'Weekly and monthly plans are open',
+          linkLabel: 'See plans',
+          linkUrl: '/plans',
+          newTab: false,
+        },
         navItems: [
+          {
+            link: {
+              type: 'custom',
+              label: 'Home',
+              url: '/',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'Plans',
+              url: '/plans',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'About',
+              url: '/about',
+            },
+          },
+          {
+            link: {
+              type: 'custom',
+              label: 'How it works',
+              url: '/#how-it-works',
+            },
+          },
           {
             link: {
               type: 'custom',
@@ -243,36 +277,62 @@ export const seed = async ({
             },
           },
         ],
+        cta: {
+          label: 'Start My Subscription',
+          newTab: false,
+          url: '/plans',
+        },
+        // Left empty until the business supplies a number, which hides the
+        // floating WhatsApp button (design.md §6.2).
+        whatsapp: {
+          message: '',
+          number: '',
+        },
       },
     }),
     payload.updateGlobal({
       slug: 'footer',
       data: {
-        navItems: [
+        tagline:
+          'Healthy, nutrition-conscious and diabetes-conscious meals, cooked in our kitchen and delivered on schedule.',
+        columns: [
           {
-            link: {
-              type: 'custom',
-              label: 'Admin',
-              url: '/admin',
-            },
+            title: 'Explore',
+            links: [
+              { link: { type: 'custom', label: 'Plans', url: '/plans' } },
+              { link: { type: 'custom', label: 'About us', url: '/about' } },
+              { link: { type: 'custom', label: 'How it works', url: '/#how-it-works' } },
+              { link: { type: 'custom', label: 'Common questions', url: '/#faq' } },
+              {
+                link: {
+                  type: 'reference',
+                  label: 'Contact',
+                  reference: { relationTo: 'pages', value: contactPage.id },
+                },
+              },
+            ],
           },
           {
-            link: {
-              type: 'custom',
-              label: 'Source Code',
-              newTab: true,
-              url: 'https://github.com/payloadcms/payload/tree/3.x/templates/website',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Payload',
-              newTab: true,
-              url: 'https://payloadcms.com/',
-            },
+            title: 'Policies',
+            links: [
+              { link: { type: 'custom', label: 'Delivery', url: '/delivery' } },
+              { link: { type: 'custom', label: 'Refunds', url: '/refunds' } },
+              { link: { type: 'custom', label: 'Cancellation', url: '/cancellation' } },
+              { link: { type: 'custom', label: 'Terms', url: '/terms' } },
+              { link: { type: 'custom', label: 'Privacy', url: '/privacy' } },
+            ],
           },
         ],
+        // Filled in by the business; until then the contact column stays hidden.
+        contact: {
+          address: '',
+          email: '',
+          phone: '',
+          whatsapp: '',
+        },
+        notice:
+          'Our meals are food options and are not a substitute for medical or nutritional advice.',
+        copyright: '© UNAVE',
       },
     }),
   ])

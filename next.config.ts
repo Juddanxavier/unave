@@ -22,8 +22,12 @@ const nextConfig: NextConfig = {
       {
         pathname: '/api/media/file/**',
       },
+      {
+        // Placeholder photography shipped in /public until the real shoot lands.
+        pathname: '/images/**',
+      },
     ],
-    qualities: [100],
+    qualities: [75, 100],
     remotePatterns: [
       ...[NEXT_PUBLIC_SERVER_URL /* 'https://example.com' */].map((item) => {
         const url = new URL(item)

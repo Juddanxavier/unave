@@ -56,18 +56,18 @@ const makePayload = (settings: Record<string, unknown> = {}) => {
   return { payload, rows, updates }
 }
 
-const baseLink = {
+const baseCancellation = {
+  cancelledAt: '2026-03-01T00:00:00.000Z',
+  planTitle: 'Monthly Tiffin',
   subscriptionId: 7,
-  templateKey: 'accessLink' as const,
+  templateKey: 'cancellation' as const,
   to: 'guest@example.com',
-  token: 'raw-token-value',
 }
 
 beforeEach(() => {
   mocks.sendZeptoMail.mockReset()
   mocks.sendSmtpMail.mockReset()
 
-  process.env.NEXT_PUBLIC_SERVER_URL = 'https://unave.test'
   process.env.MAIL_FROM_ADDRESS = 'sender@unave.test'
   process.env.MAIL_FROM_NAME = 'Unave Default'
   process.env.MAIL_REPLY_TO = 'reply@unave.test'
@@ -97,13 +97,13 @@ afterEach(() => {
   }
 })
 
-describe('template mail through ZeptoMail', () => {
-  it('writes one sent row, returns the result and stamps the subscription', async () => {
+describe('cancellation mail through ZeptoMail', () => {
+  it('writes one sent row and returns the result', async () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoOk)
-    const { payload, rows, updates } = makePayload()
+    const { payload, rows } = makePayload()
 
     const result = await sendTemplateMail(payload, {
-      ...baseLink,
+      ...baseCancellation,
       recipientName: 'Priya\r\nBcc: evil@example.com',
       triggeredBy: 3,
     })
@@ -124,72 +124,53 @@ describe('template mail through ZeptoMail', () => {
       recipientMasked: 'g***@example.com',
       recipientName: 'Priya Bcc: evil@example.com',
       status: 'sent',
-      subject: 'Your Unave plan link',
+      subject: 'Your Unave plan is cancelled',
       subscription: 7,
-      templateKey: 'accessLink',
+      templateKey: 'cancellation',
       transport: 'zeptomail',
       triggeredBy: 3,
     })
     expect(typeof rows[0].sentAt).toBe('string')
-
-    expect(updates).toHaveLength(1)
-    expect(updates[0]).toMatchObject({
-      collection: 'subscriptions',
-      context: {},
-      data: { linkSentAt: expect.any(String) },
-      depth: 0,
-      id: 7,
-      overrideAccess: true,
-    })
   })
 
-  it('builds the link from the server URL and the token only in the message body', async () => {
+  it('puts the plan title in the body and never a link', async () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoOk)
     const { payload, rows } = makePayload()
 
-    await sendTemplateMail(payload, baseLink)
+    await sendTemplateMail(payload, baseCancellation)
 
     const [, message] = mocks.sendZeptoMail.mock.calls[0]
-    expect(message.html).toContain('https://unave.test/plan/raw-token-value')
-    expect(message.text).toContain('https://unave.test/plan/raw-token-value')
-    expect(JSON.stringify(rows[0])).not.toContain('raw-token-value')
+    expect(message.html).toContain('Monthly Tiffin')
+    expect(message.html).not.toContain('/plan/')
+    expect(message.text).toContain('Monthly Tiffin')
+    expect(JSON.stringify(rows[0])).not.toContain('/plan/')
   })
 
   it('uses the sender name and the copy stored in the settings global', async () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoOk)
     const { payload } = makePayload({
-      accessLink: { heading: 'Stored heading', intro: null, subject: 'Stored subject' },
+      cancellation: { heading: 'Stored heading', intro: null, subject: 'Stored subject' },
       senderName: 'Unave Kitchen',
     })
 
-    await sendTemplateMail(payload, baseLink)
+    await sendTemplateMail(payload, baseCancellation)
 
     const [, message] = mocks.sendZeptoMail.mock.calls[0]
     expect(message.fromName).toBe('Unave Kitchen')
     expect(message.subject).toBe('Stored subject')
     expect(message.html).toContain('Stored heading')
-    expect(message.html).not.toContain('Your plan is ready')
   })
 
   it('falls back to the environment sender name when the global has none', async () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoOk)
     const { payload } = makePayload({ senderName: null })
 
-    await sendTemplateMail(payload, baseLink)
+    await sendTemplateMail(payload, baseCancellation)
 
     const [, message] = mocks.sendZeptoMail.mock.calls[0]
     expect(message.fromName).toBe('Unave Default')
     expect(message.fromAddress).toBe('sender@unave.test')
     expect(message.replyTo).toBe('reply@unave.test')
-  })
-
-  it('does not stamp the subscription for a test send', async () => {
-    mocks.sendZeptoMail.mockResolvedValue(zeptoOk)
-    const { payload, updates } = makePayload()
-
-    await sendTemplateMail(payload, { ...baseLink, subscriptionId: undefined, templateKey: 'test' })
-
-    expect(updates).toHaveLength(0)
   })
 })
 
@@ -197,9 +178,9 @@ describe('fallback and failure handling', () => {
   it('retries once over SMTP when ZeptoMail fails retryably', async () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoRetryable)
     mocks.sendSmtpMail.mockResolvedValue(smtpOk)
-    const { payload, rows, updates } = makePayload()
+    const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, baseLink)
+    const result = await sendTemplateMail(payload, baseCancellation)
 
     expect(result).toEqual({
       fallbackUsed: true,
@@ -214,15 +195,14 @@ describe('fallback and failure handling', () => {
       status: 'sent',
       transport: 'smtp',
     })
-    expect(updates).toHaveLength(1)
   })
 
   it('records the final error when both transports fail', async () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoRetryable)
     mocks.sendSmtpMail.mockResolvedValue(smtpFail)
-    const { payload, rows, updates } = makePayload()
+    const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, baseLink)
+    const result = await sendTemplateMail(payload, baseCancellation)
 
     expect(result).toEqual({ fallbackUsed: true, status: 'failed', transport: 'smtp' })
     expect(rows[0]).toMatchObject({
@@ -233,7 +213,6 @@ describe('fallback and failure handling', () => {
       transport: 'smtp',
     })
     expect(rows[0].sentAt).toBeUndefined()
-    expect(updates).toHaveLength(0)
   })
 
   it('records a ZeptoMail failure without SMTP when the fallback is not configured', async () => {
@@ -241,7 +220,7 @@ describe('fallback and failure handling', () => {
     delete (process.env as Record<string, string | undefined>).SMTP_HOST
     const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, baseLink)
+    const result = await sendTemplateMail(payload, baseCancellation)
 
     expect(result).toEqual({ fallbackUsed: false, status: 'failed', transport: 'zeptomail' })
     expect(rows[0]).toMatchObject({ errorCode: 'EM_500', transport: 'zeptomail' })
@@ -252,7 +231,7 @@ describe('fallback and failure handling', () => {
     mocks.sendZeptoMail.mockResolvedValue(zeptoTerminal)
     const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, baseLink)
+    const result = await sendTemplateMail(payload, baseCancellation)
 
     expect(result).toEqual({ fallbackUsed: false, status: 'failed', transport: 'none' })
     expect(rows[0]).toMatchObject({ errorCode: 'EM_122', transport: 'none' })
@@ -262,7 +241,7 @@ describe('fallback and failure handling', () => {
   it('refuses an invalid address before any transport and stores it as text', async () => {
     const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, { ...baseLink, to: 'not-an-address' })
+    const result = await sendTemplateMail(payload, { ...baseCancellation, to: 'not-an-address' })
 
     expect(result).toEqual({ fallbackUsed: false, status: 'failed', transport: 'none' })
     expect(mocks.sendZeptoMail).not.toHaveBeenCalled()
@@ -272,16 +251,6 @@ describe('fallback and failure handling', () => {
       recipient: 'not-an-address',
       status: 'failed',
     })
-  })
-
-  it('refuses an access link with no raw token', async () => {
-    const { payload, rows } = makePayload()
-
-    const result = await sendTemplateMail(payload, { ...baseLink, token: undefined })
-
-    expect(result).toEqual({ fallbackUsed: false, status: 'failed', transport: 'none' })
-    expect(mocks.sendZeptoMail).not.toHaveBeenCalled()
-    expect(rows[0]).toMatchObject({ errorCode: 'MISSING_TOKEN' })
   })
 
   it('renders and logs a skipped send when no transport is configured', async () => {
@@ -295,7 +264,7 @@ describe('fallback and failure handling', () => {
     }
     const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, baseLink)
+    const result = await sendTemplateMail(payload, baseCancellation)
 
     expect(result).toEqual({ fallbackUsed: false, status: 'skipped', transport: 'none' })
     expect(mocks.sendZeptoMail).not.toHaveBeenCalled()
@@ -308,7 +277,7 @@ describe('fallback and failure handling', () => {
     mocks.sendSmtpMail.mockResolvedValue(smtpOk)
     const { payload, rows } = makePayload()
 
-    const result = await sendTemplateMail(payload, baseLink)
+    const result = await sendTemplateMail(payload, baseCancellation)
 
     expect(result).toEqual({
       fallbackUsed: false,
@@ -342,6 +311,21 @@ describe('system mail', () => {
     expect(message.subject).toBe('Reset Bcc: evil@example.com')
     expect(message.cc).toEqual(['cc@example.com'])
     expect(rows[0]).toMatchObject({ templateKey: 'system', transport: 'zeptomail' })
+  })
+
+  it('records the admin who triggered a test send', async () => {
+    mocks.sendZeptoMail.mockResolvedValue(zeptoOk)
+    const { payload, rows } = makePayload()
+
+    await sendSystemMail(payload, {
+      html: '<p>Test</p>',
+      subject: 'Unave test email',
+      text: 'Test',
+      to: 'admin@example.com',
+      triggeredBy: 9,
+    })
+
+    expect(rows[0]).toMatchObject({ templateKey: 'system', triggeredBy: 9 })
   })
 
   it('refuses attachments without calling a transport', async () => {

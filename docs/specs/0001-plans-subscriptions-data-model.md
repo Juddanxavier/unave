@@ -3,6 +3,8 @@
 **Date**: 2026-10-28
 **Status**: Accepted
 
+**Amended 2026-10-30**: the secret link was removed with scope feature 5 (dropped). A subscription no longer carries `accessTokenHash`, `accessTokenExpiresAt` or `linkSentAt`; those columns are dropped by `src/migrations/20261030_170000_remove_guest_plan_links.ts`. A plan is now reached through the account that owns it (spec 0005), so the paragraph below about the secret link no longer describes the shipped system. The plan snapshot, the access rules, the status values and the delete guard all still hold.
+
 ## Summary
 
 This decision adds two collections to the Payload admin: plans, which are the food packages you sell, and subscriptions, which are the people who bought one. A subscription copies the plan price and meal count at the moment it is created, so a later price change never rewrites history. Each subscription carries a secret link (a long random token) that lets a guest open their plan without a password, and the token is stored only as a hash (a one way fingerprint) so a database leak cannot expose live links.
@@ -60,6 +62,8 @@ Everything about a purchase lives in one record, including package details typed
 - Every price change is a data edit per order.
 
 ### Option 3: Accounts first, subscriptions attached to users
+
+> ⚠️ Partly superseded. Accounts were later added as an optional layer in [spec 0005](../0005-customer-accounts/index.md), in a `customers` collection rather than the `users` collection this option proposed. A subscription still does not require an account: the `customer` link is optional and the guest link remains the primary path. The concerns below still hold.
 
 Require a customer account before a subscription exists, and link every subscription to a user.
 
@@ -132,6 +136,8 @@ Two collections, role based staff access, and a hashed secret token per subscrip
 `active` → `cancelled` (staff)
 `active` → `expired` (scheduled job, feature 8)
 `cancelled` and `expired` are final.
+
+Amended by spec 0003: the guest plan page cancels immediately, so the guest path is `active` → `cancelled` directly. `cancel_requested` stays for existing records and for a staff led request.
 
 `active` means paid and scheduled. A start date in the future is still `active`, and the guest page shows the start date rather than a separate scheduled status.
 
@@ -227,6 +233,6 @@ Built as a thin thread through the real stack: roles and access first, then the 
 
 - [ ] Run `/audit` to capture the project conventions in `AGENTS.md`; it is missing today and later specs read it.
 - [ ] Fix the ESLint config. `pnpm lint` crashes with a circular structure error from the FlatCompat setup, before any file is checked. Typecheck is the current gate.
-- [ ] Add a payments collection when Razorpay is designed; do not overload the subscription status further.
+- [x] Add a payments collection when Razorpay is designed; do not overload the subscription status further. (Done: `src/collections/Payments`, spec 0007.)
 - [ ] Rate limit the token lookup once the guest page exists.
 - [ ] Generate and commit a baseline migration before launch on the live database.

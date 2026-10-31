@@ -3,7 +3,8 @@ import type { CollectionConfig } from 'payload'
 import { isStaff } from '../../access/isStaff'
 import { computeSubscriptionEndDate } from './hooks/computeSubscriptionEndDate'
 import { copyPlanSnapshot } from './hooks/copyPlanSnapshot'
-import { issueAccessToken } from './hooks/issueAccessToken'
+import { normalizeEmail } from './hooks/normalizeEmail'
+import { setCancellationDefaults } from './hooks/setCancellationDefaults'
 
 export const Subscriptions: CollectionConfig = {
   slug: 'subscriptions',
@@ -84,6 +85,17 @@ export const Subscriptions: CollectionConfig = {
       index: true,
       relationTo: 'plans',
       required: true,
+    },
+    {
+      name: 'customer',
+      type: 'relationship',
+      admin: {
+        description:
+          'The account this plan belongs to. Linked by email when a customer signs in with Google. A plan with no account still works through its private link.',
+        position: 'sidebar',
+      },
+      index: true,
+      relationTo: 'customers',
     },
     {
       name: 'status',
@@ -190,6 +202,18 @@ export const Subscriptions: CollectionConfig = {
       },
     },
     {
+      name: 'razorpayOrderId',
+      label: 'Razorpay order id',
+      type: 'text',
+      admin: {
+        description:
+          'Set by checkout for the one-time payment of the current period. The period ends on its end date; renewal is a new payment.',
+        position: 'sidebar',
+        readOnly: true,
+      },
+      index: true,
+    },
+    {
       name: 'paymentReference',
       type: 'text',
       admin: {
@@ -237,42 +261,51 @@ export const Subscriptions: CollectionConfig = {
       },
     },
     {
-      name: 'accessTokenHash',
-      type: 'text',
-      access: {
-        create: () => false,
-        read: () => false,
-        update: () => false,
-      },
+      name: 'cancelledBy',
+      type: 'select',
       admin: {
-        hidden: true,
+        description: 'Who stopped the plan. Set to guest by the plan page, customer by the account page, else staff.',
+        position: 'sidebar',
       },
-      unique: true,
+      options: [
+        {
+          label: 'Guest',
+          value: 'guest',
+        },
+        {
+          label: 'Customer',
+          value: 'customer',
+        },
+        {
+          label: 'Staff',
+          value: 'staff',
+        },
+      ],
     },
     {
-      name: 'accessTokenExpiresAt',
-      type: 'date',
-      access: {
-        create: () => false,
-        update: () => false,
-      },
+      name: 'cancellationReason',
+      type: 'textarea',
       admin: {
-        hidden: true,
-        readOnly: true,
+        description: 'Required when the guest stopped the plan. Staff only.',
+        position: 'sidebar',
       },
-    },
-    {
-      name: 'linkSentAt',
-      type: 'date',
-      admin: {
-        hidden: true,
-        readOnly: true,
+      maxLength: 500,
+      validate: (value: string | null | undefined, { siblingData }: { siblingData?: { cancelledBy?: string } }) => {
+        if (typeof value === 'string' && value.length > 500) {
+          return 'Keep the reason to 500 characters or fewer.'
+        }
+        if (siblingData?.cancelledBy !== 'guest' && siblingData?.cancelledBy !== 'customer') return true
+
+        const trimmed = typeof value === 'string' ? value.trim() : ''
+        if (trimmed.length === 0) return 'Enter a cancellation reason.'
+        return true
       },
     },
   ],
   hooks: {
-    beforeValidate: [copyPlanSnapshot],
-    beforeChange: [computeSubscriptionEndDate, issueAccessToken],
+    beforeValidate: [copyPlanSnapshot, normalizeEmail],
+    beforeChange: [computeSubscriptionEndDate, setCancellationDefaults],
   },
+  indexes: [{ fields: ['email', 'status'] }],
   timestamps: true,
 }

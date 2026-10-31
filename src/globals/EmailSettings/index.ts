@@ -1,14 +1,14 @@
 import type { GlobalAfterReadHook, GlobalConfig, TextareaField } from 'payload'
 
-import { isAdmin } from '../../access/isAdmin'
+import { hasAdminRole, isAdmin } from '../../access/isAdmin'
 import { isStaff } from '../../access/isStaff'
-import { mergeAccessLinkCopy } from '../../email/copy'
+import { mergeCancellationCopy } from '../../email/copy'
 
 const mergeDefaults: GlobalAfterReadHook = ({ doc }) => ({
   ...doc,
   fromAddressDisplay: process.env.MAIL_FROM_ADDRESS ?? '',
   replyToDisplay: process.env.MAIL_REPLY_TO ?? '',
-  accessLink: mergeAccessLinkCopy(doc?.accessLink),
+  cancellation: mergeCancellationCopy(doc?.cancellation),
 })
 
 const copyField = (name: string, label: string): TextareaField => ({
@@ -29,7 +29,7 @@ export const EmailSettings: GlobalConfig = {
   },
   admin: {
     description:
-      'Copy for the access link email. The sender address and reply address come from the server environment.',
+      'Copy for the plan emails. The sender address and reply address come from the server environment.',
     group: 'Email',
   },
   fields: [
@@ -65,16 +65,15 @@ export const EmailSettings: GlobalConfig = {
       defaultValue: process.env.MAIL_REPLY_TO ?? '',
     },
     {
-      name: 'accessLink',
+      name: 'cancellation',
       type: 'group',
       admin: {
-        description: 'The message a guest receives with their secret plan link.',
+        description: 'The message a customer receives after cancelling their plan.',
       },
       fields: [
         copyField('subject', 'Subject'),
         copyField('heading', 'Heading'),
         copyField('intro', 'Intro'),
-        copyField('buttonLabel', 'Button label'),
         copyField('footerNote', 'Footer note'),
         copyField('signature', 'Signature'),
       ],
@@ -86,8 +85,7 @@ export const EmailSettings: GlobalConfig = {
         components: {
           Field: '@/components/EmailTestPanel#EmailTestPanel',
         },
-        condition: (_data, _siblingData, { user }) =>
-          (user as { role?: string } | null)?.role === 'admin',
+        condition: (_data, _siblingData, { user }) => hasAdminRole(user),
       },
       label: 'Send a test email',
     },

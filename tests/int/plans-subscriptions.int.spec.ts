@@ -292,40 +292,6 @@ describe('subscriptions', () => {
     expect(subscription.status).toBe('new')
   })
 
-  it('stores a SHA-256 hash with a seven day expiry', async () => {
-    const subscription = await createSubscription((await createPlan()).id)
-    const hash = subscription.accessTokenHash as string
-    const days =
-      (new Date(subscription.accessTokenExpiresAt as string).getTime() -
-        new Date(subscription.createdAt as string).getTime()) /
-      86_400_000
-
-    expect(hash).toMatch(/^[0-9a-f]{64}$/)
-    expect(Math.round(days)).toBe(7)
-  })
-
-  it('gives every subscription a different token hash', async () => {
-    const plan = await createPlan()
-    const first = await createSubscription(plan.id)
-    const second = await createSubscription(plan.id)
-
-    expect(first.accessTokenHash).not.toBe(second.accessTokenHash)
-  })
-
-  it('hides the token hash from a staff read', async () => {
-    const subscription = await createSubscription((await createPlan()).id)
-
-    const staffView: any = await payload.findByID({
-      collection: 'subscriptions',
-      id: subscription.id,
-      overrideAccess: false,
-      user: staff,
-    } as any)
-
-    expect(staffView.accessTokenHash).toBeUndefined()
-    expect(JSON.stringify(staffView)).not.toMatch(/[0-9a-f]{64}/)
-  })
-
   it('rejects activating without a start date', async () => {
     const subscription = await createSubscription((await createPlan({ billingPeriod: 'weekly' })).id)
 

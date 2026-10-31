@@ -3,6 +3,8 @@
 import { Button, TextInput, toast, useAuth } from '@payloadcms/ui'
 import React, { useState } from 'react'
 
+import { hasAdminRole } from '@/access/isAdmin'
+
 type TestResponse = {
   message?: string
   status?: string
@@ -40,7 +42,7 @@ export const EmailTestPanel: React.FC = () => {
   const [sending, setSending] = useState(false)
   const [result, setResult] = useState<null | string>(null)
 
-  if ((user as { role?: string } | null)?.role !== 'admin') return null
+  if (!hasAdminRole(user)) return null
 
   const sendTest = async (event: React.MouseEvent) => {
     event.preventDefault()
@@ -80,7 +82,7 @@ export const EmailTestPanel: React.FC = () => {
     <div style={panelStyle}>
       <h3 style={headingStyle}>Send a test email</h3>
       <p style={copyStyle}>
-        Uses the access link template with the sample name and a sample token. Five sends per hour.
+        Sends a short plain test message to the address you enter. Five sends per hour.
       </p>
       <TextInput
         label="Send to"

@@ -1,9 +1,9 @@
 import { describe, expect, it } from 'vitest'
 
 import {
-  COPY_FIELDS,
-  defaultAccessLinkCopy,
-  mergeAccessLinkCopy,
+  CANCELLATION_COPY_FIELDS,
+  defaultCancellationCopy,
+  mergeCancellationCopy,
 } from '../../src/email/copy'
 import {
   isValidRecipient,
@@ -95,32 +95,32 @@ describe('address shape helpers', () => {
   })
 })
 
-describe('access link copy', () => {
-  it('exposes all six copy fields and a default for each', () => {
-    expect(COPY_FIELDS).toHaveLength(6)
-    for (const field of COPY_FIELDS) {
-      expect(defaultAccessLinkCopy[field].length).toBeGreaterThan(0)
+describe('cancellation copy', () => {
+  it('exposes all five copy fields and a default for each', () => {
+    expect(CANCELLATION_COPY_FIELDS).toHaveLength(5)
+    for (const field of CANCELLATION_COPY_FIELDS) {
+      expect(defaultCancellationCopy[field].length).toBeGreaterThan(0)
     }
   })
 
   it('uses the code defaults when nothing is stored', () => {
-    expect(mergeAccessLinkCopy(undefined)).toEqual(defaultAccessLinkCopy)
-    expect(mergeAccessLinkCopy(null)).toEqual(defaultAccessLinkCopy)
+    expect(mergeCancellationCopy(undefined)).toEqual(defaultCancellationCopy)
+    expect(mergeCancellationCopy(null)).toEqual(defaultCancellationCopy)
   })
 
   it('overrides one field and keeps defaults for the rest', () => {
-    const merged = mergeAccessLinkCopy({ subject: 'Custom subject' })
+    const merged = mergeCancellationCopy({ subject: 'Custom subject' })
 
     expect(merged.subject).toBe('Custom subject')
-    expect(merged.heading).toBe(defaultAccessLinkCopy.heading)
-    expect(merged.signature).toBe(defaultAccessLinkCopy.signature)
+    expect(merged.heading).toBe(defaultCancellationCopy.heading)
+    expect(merged.signature).toBe(defaultCancellationCopy.signature)
   })
 
   it('treats an empty or whitespace only field as absent', () => {
-    const merged = mergeAccessLinkCopy({ intro: '', subject: '   ', heading: 'Only heading' })
+    const merged = mergeCancellationCopy({ intro: '', subject: '   ', heading: 'Only heading' })
 
-    expect(merged.intro).toBe(defaultAccessLinkCopy.intro)
-    expect(merged.subject).toBe(defaultAccessLinkCopy.subject)
+    expect(merged.intro).toBe(defaultCancellationCopy.intro)
+    expect(merged.subject).toBe(defaultCancellationCopy.subject)
     expect(merged.heading).toBe('Only heading')
   })
 })

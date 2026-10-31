@@ -5,9 +5,12 @@ import { buildConfig, PayloadRequest } from 'payload'
 import { fileURLToPath } from 'url'
 
 import { Categories } from './collections/Categories'
+import { Customers } from './collections/Customers'
 import { EmailLog } from './collections/EmailLog'
+import { Enquiries } from './collections/Enquiries'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
+import { Payments } from './collections/Payments'
 import { Plans } from './collections/Plans'
 import { Posts } from './collections/Posts'
 import { Subscriptions } from './collections/Subscriptions'
@@ -44,8 +47,8 @@ export default buildConfig({
       icons: [
         {
           rel: 'icon',
-          type: 'image/svg+xml',
-          url: '/favicon.svg',
+          type: 'image/png',
+          url: '/favicon-192.png',
         },
       ],
       titleSuffix: '| Unave',
@@ -84,7 +87,19 @@ export default buildConfig({
       connectionString: process.env.DATABASE_URL || '',
     },
   }),
-  collections: [Pages, Posts, Media, Categories, Users, Plans, Subscriptions, EmailLog],
+  collections: [
+    Pages,
+    Posts,
+    Media,
+    Categories,
+    Users,
+    Customers,
+    Enquiries,
+    Plans,
+    Subscriptions,
+    Payments,
+    EmailLog,
+  ],
   cors: [getServerSideURL()].filter(Boolean),
   email: unaveEmailAdapter,
   endpoints: [emailTestEndpoint],

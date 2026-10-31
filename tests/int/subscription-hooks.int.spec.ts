@@ -1,10 +1,8 @@
 import { APIError } from 'payload'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { computeSubscriptionEndDate } from '@/collections/Subscriptions/hooks/computeSubscriptionEndDate'
 import { copyPlanSnapshot } from '@/collections/Subscriptions/hooks/copyPlanSnapshot'
-import { issueAccessToken } from '@/collections/Subscriptions/hooks/issueAccessToken'
-import { hashAccessToken } from '@/utilities/accessToken'
 
 const plan = {
   id: 42,
@@ -75,67 +73,6 @@ describe('copyPlanSnapshot', () => {
 
     expect(result).toBe(data)
     expect(findByID).not.toHaveBeenCalled()
-  })
-})
-
-describe('issueAccessToken', () => {
-  beforeEach(() => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2026-03-01T00:00:00.000Z'))
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
-  })
-
-  it('issues a random token on create and stores only its hash', () => {
-    const req: { context: Record<string, unknown> } = { context: {} }
-
-    const result: any = issueAccessToken({
-      data: { customerName: 'Asha' },
-      operation: 'create',
-      req,
-    } as any)
-
-    const raw = req.context.rawAccessToken as string
-
-    expect(raw).toMatch(/^[A-Za-z0-9_-]{43}$/)
-    expect(result.accessTokenHash).toBe(hashAccessToken(raw))
-    expect(result.accessTokenExpiresAt).toBe('2026-03-08T00:00:00.000Z')
-    expect(JSON.stringify(result)).not.toContain(raw)
-    expect(result).not.toHaveProperty('accessToken')
-  })
-
-  it('does nothing on a plain update', () => {
-    const req: { context: Record<string, unknown> } = { context: {} }
-    const data = { customerName: 'Asha' }
-
-    const result = issueAccessToken({ data, operation: 'update', req } as any)
-
-    expect(result).toBe(data)
-    expect(req.context).not.toHaveProperty('rawAccessToken')
-  })
-
-  it('rotates the hash and raw token when a resend asks for a new link', () => {
-    const req: { context: Record<string, unknown> } = { context: {} }
-    const first: any = issueAccessToken({
-      data: {},
-      operation: 'create',
-      req,
-    } as any)
-    const firstRaw = req.context.rawAccessToken as string
-
-    req.context.issueNewAccessToken = true
-    const second: any = issueAccessToken({
-      data: {},
-      operation: 'update',
-      req,
-    } as any)
-    const secondRaw = req.context.rawAccessToken as string
-
-    expect(second.accessTokenHash).not.toBe(first.accessTokenHash)
-    expect(second.accessTokenHash).toBe(hashAccessToken(secondRaw))
-    expect(secondRaw).not.toBe(firstRaw)
   })
 })
 

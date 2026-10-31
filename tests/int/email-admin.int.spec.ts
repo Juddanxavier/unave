@@ -3,9 +3,9 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { emailTestEndpoint } from '../../src/endpoints/emailTest'
 import { pruneEmailLogTask } from '../../src/jobs/pruneEmailLog'
 
-const mocks = vi.hoisted(() => ({ sendTemplateMail: vi.fn() }))
+const mocks = vi.hoisted(() => ({ sendSystemMail: vi.fn() }))
 
-vi.mock('../../src/email/send', () => ({ sendTemplateMail: mocks.sendTemplateMail }))
+vi.mock('../../src/email/send', () => ({ sendSystemMail: mocks.sendSystemMail }))
 
 const admin = { id: 11, role: 'admin' }
 const staff = { id: 12, role: 'staff' }
@@ -44,8 +44,8 @@ const runPrune = async (payload: unknown) => {
 }
 
 beforeEach(() => {
-  mocks.sendTemplateMail.mockReset()
-  mocks.sendTemplateMail.mockResolvedValue({
+  mocks.sendSystemMail.mockReset()
+  mocks.sendSystemMail.mockResolvedValue({
     fallbackUsed: false,
     messageId: 'test-1',
     status: 'sent',
@@ -58,14 +58,14 @@ describe('admin test endpoint', () => {
     const { status } = await invoke(makeRequest({ user: null }))
 
     expect(status).toBe(401)
-    expect(mocks.sendTemplateMail).not.toHaveBeenCalled()
+    expect(mocks.sendSystemMail).not.toHaveBeenCalled()
   })
 
   it('refuses a staff member', async () => {
     const { status } = await invoke(makeRequest({ user: staff }))
 
     expect(status).toBe(403)
-    expect(mocks.sendTemplateMail).not.toHaveBeenCalled()
+    expect(mocks.sendSystemMail).not.toHaveBeenCalled()
   })
 
   it('refuses an invalid address and never counts or sends', async () => {
@@ -75,14 +75,14 @@ describe('admin test endpoint', () => {
 
     expect(status).toBe(400)
     expect(req.payload.count).not.toHaveBeenCalled()
-    expect(mocks.sendTemplateMail).not.toHaveBeenCalled()
+    expect(mocks.sendSystemMail).not.toHaveBeenCalled()
   })
 
   it('returns 429 and does not send when five tests already ran this hour', async () => {
     const { status } = await invoke(makeRequest({ recent: 5 }))
 
     expect(status).toBe(429)
-    expect(mocks.sendTemplateMail).not.toHaveBeenCalled()
+    expect(mocks.sendSystemMail).not.toHaveBeenCalled()
   })
 
   it('counts only this user, this template key and the last hour', async () => {
@@ -94,28 +94,31 @@ describe('admin test endpoint', () => {
     const where = JSON.stringify(args.where)
 
     expect(where).toContain('"triggeredBy":{"equals":11}')
-    expect(where).toContain('"templateKey":{"equals":"test"}')
+    expect(where).toContain('"templateKey":{"equals":"system"}')
     expect(where).toContain('"createdAt":{"greater_than_equal"')
   })
 
-  it('sends the sample access link through the real template path', async () => {
+  it('sends a plain test message through the real send path', async () => {
     const req = makeRequest({ recent: 4 })
 
     const { json, status } = await invoke(req)
 
     expect(status).toBe(200)
     expect(json).toEqual({ status: 'sent', transport: 'zeptomail' })
-    expect(mocks.sendTemplateMail).toHaveBeenCalledWith(req.payload, {
-      recipientName: 'Sample Customer',
-      templateKey: 'test',
+
+    const [passedPayload, sent] = mocks.sendSystemMail.mock.calls[0]
+    expect(passedPayload).toBe(req.payload)
+    expect(sent).toMatchObject({
+      subject: 'Unave test email',
       to: 'guest@example.com',
-      token: 'sample-token',
       triggeredBy: 11,
     })
+    expect(sent.html).toContain('test message')
+    expect(sent.text).toContain('test message')
   })
 
   it('reports the transport result of a failed test send', async () => {
-    mocks.sendTemplateMail.mockResolvedValue({
+    mocks.sendSystemMail.mockResolvedValue({
       fallbackUsed: true,
       status: 'failed',
       transport: 'smtp',

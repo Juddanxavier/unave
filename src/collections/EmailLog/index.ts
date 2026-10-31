@@ -70,8 +70,8 @@ export const EmailLog: CollectionConfig = {
       name: 'templateKey',
       type: 'select',
       options: [
-        { label: 'Access link', value: 'accessLink' },
-        { label: 'Test', value: 'test' },
+        { label: 'Cancellation', value: 'cancellation' },
+        { label: 'Customer account', value: 'customerAuth' },
         { label: 'System', value: 'system' },
       ],
       required: true,

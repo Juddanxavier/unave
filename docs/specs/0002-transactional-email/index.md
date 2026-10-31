@@ -3,6 +3,8 @@
 **Date**: 2026-10-29
 **Status**: Accepted
 
+**Amended 2026-10-30**: the access link template and its editable copy were removed with scope feature 5 (dropped). `TEMPLATE_KEYS` is now `system`, `cancellation` and `customerAuth`, `TemplateMailInput` carries only the cancellation variant, `subscriptions.linkSentAt` is gone, and the access-link clauses in AC-5, AC-6, AC-8 and AC-11 describe a message the site no longer sends. The transport, fallback, log, prune job and copy-in-a-global design all still hold. The admin test send now posts a plain message under the `system` key rather than the access link template.
+
 ## Summary
 
 This decision adds one mail path to the site. A message is rendered from a React Email template, sent through ZeptoMail, and retried over a plain SMTP relay when ZeptoMail fails. Every attempt is recorded in a mail log staff can read, and the message copy can be edited in the admin panel. The path is wired into Payload's own email adapter, so password resets and form notifications use the same route.
@@ -227,7 +229,7 @@ The project approach is Tracer Bullet. The plan opens a thin thread through ever
 
 ## Follow-up
 
-- [ ] Feature 5 must build the page at `/plan/[token]`. Until it ships, the link in a test message leads to a 404, so this feature should not be announced to customers on its own.
+- [x] Moot: feature 5 was to build the page at `/plan/[token]`. Feature 5 was dropped on 2026-10-30 and the access link was removed with it, so no test message links anywhere.
 - [ ] Feature 6 staff resend must call this helper and issue a new token through the existing `req.context.issueNewAccessToken` flag, then let this module set `linkSentAt` with a clean context. Reusing the resend request context for that update can rotate the token a second time.
 - [ ] Features 4 and 6 must send only after their own subscription write commits. A send inside an open transaction can mail a link to a record that then rolls back.
 - [ ] Confirm the ZeptoMail regional host, token header and JSON field names against the account documentation before wiring the API call, since the zone decides the host.
