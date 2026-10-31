@@ -11,6 +11,8 @@ This spec supersedes the account decisions in specs 0001 and 0003, the design co
 
 **Amendment, 2026-10-30**: the original design was Google only. The form now offers email and password alongside Google (AC-15, AC-16), which adds a hash, a confirmation step, a reset flow, lockout and rate limiting. The session, the `customers` collection and the access split are unchanged. The guest plan link was removed the same day, which retires AC-9's "continues to work through the guest link" clause.
 
+**Amendment, 2026-10-31**: the plans and subscriptions were removed from the site (see the Removed section in `docs/scope/scope.md`). The account no longer lists or cancels plans — it is sign-in plus a saved profile: delivery details and a food preference. The identity work in this spec (the `customers` collection, email and password, Google, sessions) is exactly what survives, and the user stories about reaching or stopping a plan describe a site that no longer exists.
+
 ## Requirements
 
 **User stories**:

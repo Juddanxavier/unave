@@ -17,7 +17,7 @@ import { FOOD_PREFERENCE_VALUES } from './foodPreference'
  * alone stays optional.
  */
 
-/** The same shape the subscriptions collection validates a per-plan phone with. */
+/** The phone shape the kitchen uses, shared by the profile form and the enquiry form. */
 export const PHONE_PATTERN = /^[0-9+\s-]{7,15}$/
 
 export const PINCODE_PATTERN = /^\d{6}$/

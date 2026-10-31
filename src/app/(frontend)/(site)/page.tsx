@@ -8,8 +8,6 @@ import { FinalCta } from '@/components/home/FinalCta'
 import { Gallery } from '@/components/home/Gallery'
 import { Hero } from '@/components/home/Hero'
 import { HowItWorks } from '@/components/home/HowItWorks'
-import { PlanAccessBand } from '@/components/home/PlanAccessBand'
-import { Pricing } from '@/components/home/Pricing'
 import { Testimonials } from '@/components/home/Testimonials'
 import { TrustStrip } from '@/components/home/TrustStrip'
 import { Welcome } from '@/components/home/Welcome'
@@ -68,11 +66,9 @@ export default function HomePage() {
       <TrustStrip />
       <Welcome />
       <Benefits />
-      <Pricing />
       <Categories />
       <HowItWorks />
       <Gallery />
-      <PlanAccessBand />
       <Testimonials />
       <Faq />
       <FinalCta />

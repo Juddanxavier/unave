@@ -5,7 +5,7 @@ const BeforeLogin: React.FC = () => {
     <div>
       <p>
         <b>Welcome to Unave.</b>
-        {' Sign in to manage the site, the food plans and the subscriptions.'}
+        {' Sign in to manage the site and its content.'}
       </p>
     </div>
   )

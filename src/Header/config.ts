@@ -12,9 +12,9 @@ import { revalidateHeader } from './hooks/revalidateHeader'
 const ANNOUNCEMENT_DEFAULTS = {
   enabled: true,
   text: "This week's menu is live",
-  note: 'Weekly and monthly plans are open',
-  linkLabel: 'See plans',
-  linkUrl: '/plans',
+  note: 'The kitchen is taking orders',
+  linkLabel: 'Message us',
+  linkUrl: '/contact',
 } as const
 
 /** Fill a field with its default when the stored document has no value yet. */
@@ -84,7 +84,7 @@ export const Header: GlobalConfig = {
           defaultValue: ANNOUNCEMENT_DEFAULTS.linkLabel,
           hooks: { afterRead: [fillDefault(ANNOUNCEMENT_DEFAULTS.linkLabel)] },
           admin: {
-            description: 'The underlined words on the right, for example "See plans".',
+            description: 'The underlined words on the right, for example "Message us".',
           },
         },
         {
@@ -94,7 +94,7 @@ export const Header: GlobalConfig = {
           defaultValue: ANNOUNCEMENT_DEFAULTS.linkUrl,
           hooks: { afterRead: [fillDefault(ANNOUNCEMENT_DEFAULTS.linkUrl)] },
           admin: {
-            description: 'The whole bar links here. A path such as /plans, or a full URL.',
+            description: 'The whole bar links here. A path such as /contact, or a full URL.',
           },
         },
         {
@@ -131,8 +131,8 @@ export const Header: GlobalConfig = {
         description: 'The pill on the right of the bar, repeated at the foot of the mobile menu.',
       },
       defaultValue: {
-        label: 'Start My Subscription',
-        url: '/plans',
+        label: 'Message the kitchen',
+        url: '/contact',
       },
       fields: [
         {
@@ -147,7 +147,7 @@ export const Header: GlobalConfig = {
           label: 'Link',
           required: true,
           admin: {
-            description: 'A path such as /plans, or a full URL.',
+            description: 'A path such as /contact, or a full URL.',
           },
         },
         {

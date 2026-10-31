@@ -135,7 +135,7 @@ export type GoogleProfile = {
 
 const CUSTOMER_EMAIL_MAX = 320
 
-/** Trim and lowercase, matching how `subscriptions.email` is normalised. */
+/** Trim and lowercase, matching how `customers.email` is normalised. */
 export const normalizeCustomerEmail = (value: string): string =>
   value.trim().toLowerCase().slice(0, CUSTOMER_EMAIL_MAX)
 

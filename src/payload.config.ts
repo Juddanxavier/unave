@@ -10,10 +10,7 @@ import { EmailLog } from './collections/EmailLog'
 import { Enquiries } from './collections/Enquiries'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
-import { Payments } from './collections/Payments'
-import { Plans } from './collections/Plans'
 import { Posts } from './collections/Posts'
-import { Subscriptions } from './collections/Subscriptions'
 import { Users } from './collections/Users'
 import { unaveEmailAdapter } from './email/adapter'
 import { emailTestEndpoint } from './endpoints/emailTest'
@@ -43,7 +40,7 @@ export default buildConfig({
       },
     },
     meta: {
-      description: 'Unave admin, food plans and subscriptions',
+      description: 'Unave admin, content and enquiries',
       icons: [
         {
           rel: 'icon',
@@ -95,9 +92,6 @@ export default buildConfig({
     Users,
     Customers,
     Enquiries,
-    Plans,
-    Subscriptions,
-    Payments,
     EmailLog,
   ],
   cors: [getServerSideURL()].filter(Boolean),

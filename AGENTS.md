@@ -14,9 +14,9 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Hard constraints from it that override defaults:
 
-- Never require an account, or imply one is needed, to browse the menu or place an order. Managing a plan does need an account: a customer signs in with email and password, or with Google. Customer identity lives in the `customers` collection; staff identity lives in `users`. Never put a customer in the `users` collection, and never let the two share a session cookie.
+- Never require an account, or imply one is needed, to browse the site or to send a message. An account only saves a customer's details: a customer signs in with email and password, or with Google. Customer identity lives in the `customers` collection; staff identity lives in `users`. Never put a customer in the `users` collection, and never let the two share a session cookie.
 - Never use `--gold-400` as text on light backgrounds; use `--gold-600` or green.
-- One primary action per section, pill-shaped buttons, CTA verbs (Start, Browse, Compare, Choose, Message).
+- One primary action per section, pill-shaped buttons, CTA verbs (Message, Contact, Ask).
 - WCAG 2.2 AA, 44px minimum targets, `prefers-reduced-motion` respected.
 - Medical, allergy, diabetes and child-nutrition claims must carry the notice block nearby.
 

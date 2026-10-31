@@ -84,7 +84,7 @@ export default function AboutPage() {
           <p className="text-lead text-cream/85 mt-6 max-w-[52ch]">{ABOUT_HERO_SUB}</p>
 
           <div className="mt-8">
-            <Cta href="/plans" variant="onDark">
+            <Cta href="/contact" variant="onDark">
               {ABOUT_HERO_CTA}
             </Cta>
           </div>
@@ -188,7 +188,7 @@ export default function AboutPage() {
           <p className="text-lead text-cream/85 mt-4">{ABOUT_FINAL_BODY}</p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Cta href="/plans" variant="onDark">
+            <Cta href="/contact" variant="onDark">
               {ABOUT_FINAL_PRIMARY}
             </Cta>
             <Cta href="/contact" variant="onDarkSecondary">

@@ -5,8 +5,8 @@ import {
   FINAL_HEADING,
   FINAL_PRIMARY,
   FINAL_SECONDARY,
+  HOME_HREF_CONTACT,
   HOME_HREF_FAQ,
-  HOME_HREF_PLANS,
   IMAGES,
 } from '@/utilities/homeCopy'
 
@@ -28,7 +28,7 @@ export const FinalCta: React.FC = () => (
       <p className="text-lead text-cream/85 mt-4">{FINAL_BODY}</p>
 
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <Cta href={HOME_HREF_PLANS} variant="onDark">
+        <Cta href={HOME_HREF_CONTACT} variant="onDark">
           {FINAL_PRIMARY}
         </Cta>
         <Cta href={HOME_HREF_FAQ} variant="onDarkSecondary">

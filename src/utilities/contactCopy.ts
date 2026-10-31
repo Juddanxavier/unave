@@ -12,7 +12,7 @@ export const CONTACT_HERO_EYEBROW = 'Contact'
 export const CONTACT_HERO_HEADLINE = 'Talk to us'
 export const CONTACT_HERO_HEADLINE_ACCENT = 'we read everything'
 export const CONTACT_HERO_SUB =
-  'Ask about plans, delivery in your area, allergies, or anything else. WhatsApp is the fastest way to reach us, and the form below lands in the same place.'
+  'Ask about delivery in your area, allergies, or anything else. WhatsApp is the fastest way to reach us, and the form below lands in the same place.'
 
 export const CONTACT_IMAGES = {
   hero: '/images/band-cta.jpg',
@@ -23,7 +23,7 @@ export const CONTACT_WAYS_INTRO =
   'Any one of these is fine. WhatsApp is usually the quickest; the form suits a longer question.'
 export const CONTACT_WAY_WHATSAPP_TITLE = 'WhatsApp'
 export const CONTACT_WAY_WHATSAPP = 'Message us on WhatsApp'
-export const CONTACT_WAY_WHATSAPP_NOTE = 'For quick questions and help choosing a plan.'
+export const CONTACT_WAY_WHATSAPP_NOTE = 'For quick questions and anything you need.'
 export const CONTACT_WAY_CALL_TITLE = 'Call the kitchen'
 export const CONTACT_WAY_CALL = 'Call the kitchen'
 export const CONTACT_WAY_CALL_NOTE = 'During cooking hours; if we miss you, we call back.'

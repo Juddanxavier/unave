@@ -58,7 +58,7 @@ const markGoogleVerified = async (
  * create a new one.
  *
  * Linking by email is what makes an account useful before its first sign-in: a
- * customer who already has a subscription under that address keeps it.
+ * customer who already has an account under that address keeps it.
  *
  * Payload's local strategy requires a password on create, including for a person
  * who will only ever use Google. A random one is generated and hashed by Payload,

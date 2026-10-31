@@ -1,6 +1,6 @@
 /**
  * Every fixed string the about page shows (spec 0006). Kept in one module so the
- * page and any future reuse cannot drift, like homeCopy and planShopCopy.
+ * page and any future reuse cannot drift, like homeCopy and contactCopy.
  */
 
 export const ABOUT_PAGE_TITLE = 'About us'
@@ -12,7 +12,7 @@ export const ABOUT_HERO_HEADLINE = 'Food from a kitchen,'
 export const ABOUT_HERO_HEADLINE_ACCENT = 'not a factory'
 export const ABOUT_HERO_SUB =
   'UNAVE cooks the way a careful home does: fresh every morning, honest about what goes in, and delivered when we say it will be.'
-export const ABOUT_HERO_CTA = 'See the plans'
+export const ABOUT_HERO_CTA = 'Message the kitchen'
 
 /** Photography (design.md §8): the band photos are decorative; the story photo is content. */
 export const ABOUT_IMAGES = {
@@ -47,7 +47,7 @@ export const ABOUT_VALUES = [
     title: 'Cooked like home',
   },
   {
-    text: 'You choose the plan that fits your week, and we hold up our end of it. Change your mind, and the plan changes with you.',
+    text: 'You tell us what fits your week, and we hold up our end of it. Change your mind, and the week changes with you.',
     title: 'On your schedule',
   },
 ] as const
@@ -55,7 +55,7 @@ export const ABOUT_VALUES = [
 export const ABOUT_WORK_HEADING = 'How it works here'
 export const ABOUT_WORK = [
   {
-    text: 'Browse the menu and the plans freely — no account needed to look, and none needed to order.',
+    text: 'Browse the menu freely — no account needed to look, and none needed to get in touch.',
     title: 'Choose what fits',
   },
   {
@@ -74,6 +74,6 @@ export const ABOUT_NOTICE_BODY =
 
 export const ABOUT_FINAL_HEADING = 'Come and eat with us'
 export const ABOUT_FINAL_BODY =
-  'Start with a plan, or simply ask us a question. Both are welcome, and neither needs an account.'
-export const ABOUT_FINAL_PRIMARY = 'See the plans'
+  'Tell us what you need, or simply ask us a question. Both are welcome, and neither needs an account.'
+export const ABOUT_FINAL_PRIMARY = 'Message the kitchen'
 export const ABOUT_FINAL_SECONDARY = 'Message us'

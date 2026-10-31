@@ -39,7 +39,7 @@ import { FOOD_PREFERENCES } from '../../utilities/foodPreference'
  *    from `unave-customer`, and Payload's own JWT strategy still verifies it.
  *
  * The separation still means a customer document has no `role`, so `hasStaffRole`
- * returns false and every existing staff gate on Plans, Subscriptions, EmailLog and
+ * returns false and every existing staff gate on the content collections, EmailLog and
  * EmailSettings denies it. No staff collection needed an edit for this feature.
  */
 export const Customers: CollectionConfig = {
@@ -100,7 +100,7 @@ export const Customers: CollectionConfig = {
       name: 'phone',
       type: 'text',
       admin: {
-        description: 'Saved by the customer on their account page, and copied onto new plans.',
+        description: 'Saved by the customer on their account page, and used when the kitchen is in touch.',
         position: 'sidebar',
       },
       validate: (value: string | null | undefined) => {
@@ -113,7 +113,7 @@ export const Customers: CollectionConfig = {
       name: 'address',
       type: 'group',
       admin: {
-        description: 'Saved by the customer on their account page, and copied onto new plans.',
+        description: 'Saved by the customer on their account page, and used when the kitchen is in touch.',
         position: 'sidebar',
       },
       fields: [

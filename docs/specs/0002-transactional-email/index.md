@@ -5,6 +5,8 @@
 
 **Amended 2026-10-30**: the access link template and its editable copy were removed with scope feature 5 (dropped). `TEMPLATE_KEYS` is now `system`, `cancellation` and `customerAuth`, `TemplateMailInput` carries only the cancellation variant, `subscriptions.linkSentAt` is gone, and the access-link clauses in AC-5, AC-6, AC-8 and AC-11 describe a message the site no longer sends. The transport, fallback, log, prune job and copy-in-a-global design all still hold. The admin test send now posts a plain message under the `system` key rather than the access link template.
 
+**Amended 2026-10-31**: the plans and checkout system was removed from the site. The `cancellation` template, its copy group in EmailSettings and the `subscription` field on the mail log are gone, and `TEMPLATE_KEYS` is now `system` and `customerAuth`. The transport, fallback, log, prune job and copy-in-a-global design all still hold.
+
 ## Summary
 
 This decision adds one mail path to the site. A message is rendered from a React Email template, sent through ZeptoMail, and retried over a plain SMTP relay when ZeptoMail fails. Every attempt is recorded in a mail log staff can read, and the message copy can be edited in the admin panel. The path is wired into Payload's own email adapter, so password resets and form notifications use the same route.

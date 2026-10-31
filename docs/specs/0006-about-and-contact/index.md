@@ -3,6 +3,8 @@
 **Date**: 2026-10-31
 **Status**: In Progress
 
+**Amended 2026-10-31**: the plans and checkout system was removed from the site. The about page now hands over to the contact page instead of a plans catalogue, and its closing band says "Message the kitchen". The enquiry pipeline in this spec is unchanged.
+
 ## Summary
 
 Two public pages complete the site's supporting set: `/about`, which tells the story of the kitchen and hands over to the plans, and `/contact`, which gathers every way to reach the kitchen in one place and carries the site's first public write path — an enquiry form that stores a row and emails the kitchen, all without JavaScript.

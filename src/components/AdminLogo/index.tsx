@@ -26,7 +26,7 @@ const AdminLogo: React.FC = () => (
         textTransform: 'uppercase',
       }}
     >
-      Food plans
+      Cloud kitchen
     </span>
   </div>
 )

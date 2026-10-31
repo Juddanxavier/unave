@@ -1,24 +1,12 @@
-import type { GlobalAfterReadHook, GlobalConfig, TextareaField } from 'payload'
+import type { GlobalAfterReadHook, GlobalConfig } from 'payload'
 
 import { hasAdminRole, isAdmin } from '../../access/isAdmin'
 import { isStaff } from '../../access/isStaff'
-import { mergeCancellationCopy } from '../../email/copy'
 
 const mergeDefaults: GlobalAfterReadHook = ({ doc }) => ({
   ...doc,
   fromAddressDisplay: process.env.MAIL_FROM_ADDRESS ?? '',
   replyToDisplay: process.env.MAIL_REPLY_TO ?? '',
-  cancellation: mergeCancellationCopy(doc?.cancellation),
-})
-
-const copyField = (name: string, label: string): TextareaField => ({
-  name,
-  type: 'textarea',
-  label,
-  admin: {
-    description: 'Leave blank to use the default.',
-    rows: 3,
-  },
 })
 
 export const EmailSettings: GlobalConfig = {
@@ -29,7 +17,7 @@ export const EmailSettings: GlobalConfig = {
   },
   admin: {
     description:
-      'Copy for the plan emails. The sender address and reply address come from the server environment.',
+      'Sender details for account mail. The sender address and reply address come from the server environment.',
     group: 'Email',
   },
   fields: [
@@ -63,20 +51,6 @@ export const EmailSettings: GlobalConfig = {
         readOnly: true,
       },
       defaultValue: process.env.MAIL_REPLY_TO ?? '',
-    },
-    {
-      name: 'cancellation',
-      type: 'group',
-      admin: {
-        description: 'The message a customer receives after cancelling their plan.',
-      },
-      fields: [
-        copyField('subject', 'Subject'),
-        copyField('heading', 'Heading'),
-        copyField('intro', 'Intro'),
-        copyField('footerNote', 'Footer note'),
-        copyField('signature', 'Signature'),
-      ],
     },
     {
       name: 'testPanel',

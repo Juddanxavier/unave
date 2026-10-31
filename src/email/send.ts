@@ -15,7 +15,6 @@ import {
   stripHeaderBreaks,
   toRecipientText,
 } from './recipient'
-import { renderCancellation } from './templates/render'
 import { sendSmtpMail } from './transports/smtp'
 import { sendZeptoMail } from './transports/zeptomail'
 import type {
@@ -25,7 +24,6 @@ import type {
   MailTransport,
   SystemMailInput,
   TemplateKey,
-  TemplateMailInput,
 } from './types'
 
 type EmailLogData = Omit<EmailLog, 'createdAt' | 'id' | 'updatedAt'>
@@ -38,7 +36,6 @@ type DeliveryInput = {
   recipientName?: string
   replyTo?: string
   subject: string
-  subscriptionId?: number
   templateKey: TemplateKey
   text: string
   to: string
@@ -71,7 +68,6 @@ const writeLog = async (
     subject: stripHeaderBreaks(input.subject),
     templateKey: input.templateKey,
     transport: outcome.transport,
-    ...(input.subscriptionId !== undefined ? { subscription: input.subscriptionId } : {}),
     ...(input.triggeredBy !== undefined ? { triggeredBy: input.triggeredBy } : {}),
     ...(outcome.messageId ? { providerMessageId: outcome.messageId } : {}),
     ...(outcome.code ? { errorCode: outcome.code } : {}),
@@ -221,57 +217,6 @@ const deliver = async (
     message: fallbackOnly.message,
     status: 'failed',
     transport: 'smtp',
-  })
-}
-
-/**
- * The one template mail left after the guest plan link went. It renders the
- * cancellation message and delivers it; every other message on the site goes
- * through `sendSystemMail` or `sendCustomerAuthMail`.
- */
-export const sendTemplateMail = async (
-  payload: Payload,
-  input: TemplateMailInput,
-): Promise<MailResult> => {
-  const environment = readMailEnvironment()
-  const settings: MailSettings = await loadMailSettings(payload)
-  const recipientName = stripHeaderBreaks(input.recipientName) || undefined
-  const copy = settings.cancellation
-  const subject = stripHeaderBreaks(copy.subject) || 'Your Unave plan is cancelled'
-  const base: DeliveryInput = {
-    fromName: stripHeaderBreaks(settings.senderName ?? environment.fromName) || undefined,
-    html: '',
-    recipientName,
-    subject,
-    subscriptionId: input.subscriptionId,
-    templateKey: input.templateKey,
-    text: '',
-    to: input.to,
-    triggeredBy: input.triggeredBy,
-  }
-
-  let rendered: { html: string; text: string }
-
-  try {
-    rendered = await renderCancellation({
-      cancelledAt: input.cancelledAt,
-      copy,
-      planTitle: input.planTitle,
-      recipientName,
-    })
-  } catch {
-    return logAndReturn(payload, base, {
-      code: 'RENDER_FAILED',
-      message: 'The cancellation message could not be rendered.',
-      status: 'failed',
-      transport: 'none',
-    })
-  }
-
-  return deliver(payload, environment, {
-    ...base,
-    html: rendered.html,
-    text: rendered.text,
   })
 }
 

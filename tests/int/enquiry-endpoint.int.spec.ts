@@ -42,7 +42,7 @@ const uniqueEmail = () => `${run}-${Math.random().toString(36).slice(2, 8)}@unav
 
 const VALID = {
   email: 'asha@example.com',
-  message: 'Do you deliver to Kothrud, and can the plan start on a Monday?',
+  message: 'Do you deliver to Kothrud, and can you cook for a group of ten?',
   name: 'Asha Kale',
   phone: '9876543210',
 }

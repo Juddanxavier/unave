@@ -31,7 +31,7 @@ export const Users: CollectionConfig = {
         update: isAdminField,
       },
       admin: {
-        description: 'Admins manage users. Staff run plans and subscriptions.',
+        description: 'Admins manage users. Staff run the content and the enquiries.',
         position: 'sidebar',
       },
       defaultValue: 'admin',

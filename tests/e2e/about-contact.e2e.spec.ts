@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 const BASE = 'http://localhost:3000'
 
 test.describe('about and contact pages', () => {
-  test('the about page tells the story and hands over to the plans', async ({ page }) => {
+  test('the about page tells the story and hands over to the kitchen', async ({ page }) => {
     await page.goto(`${BASE}/about`)
 
     await expect(
@@ -27,7 +27,7 @@ test.describe('about and contact pages', () => {
       page.getByRole('heading', { level: 2, name: 'What we stand for' }),
     ).toBeVisible()
 
-    await expect(page.getByRole('link', { name: 'See the plans' }).first()).toBeVisible()
+    await expect(page.getByRole('link', { name: 'Message the kitchen' }).first()).toBeVisible()
   })
 
   test('the contact page offers WhatsApp, phone, email and the form', async ({ page }) => {

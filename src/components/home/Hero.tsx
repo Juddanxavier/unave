@@ -1,4 +1,4 @@
-import { CalendarDays, Leaf, Lock, PauseCircle } from 'lucide-react'
+import { FlaskConical, Leaf, Lock, UtensilsCrossed } from 'lucide-react'
 import React from 'react'
 
 import {
@@ -6,14 +6,11 @@ import {
   HERO_EYEBROW,
   HERO_HEADLINE,
   HERO_HEADLINE_ACCENT,
-  HERO_PRICE_LEAD,
-  HERO_PRICE_UNIT,
-  HERO_PRICE_VALUE,
   HERO_PRIMARY,
   HERO_SECONDARY,
   HERO_SUB,
+  HOME_HREF_CONTACT,
   HOME_HREF_HOW_IT_WORKS,
-  HOME_HREF_PLANS,
   IMAGES,
 } from '@/utilities/homeCopy'
 
@@ -22,10 +19,10 @@ import { Section } from './Section'
 import { Swoosh } from '@/components/Swoosh'
 
 const CHIP_ICONS = {
-  calendar: CalendarDays,
+  flask: FlaskConical,
   leaf: Leaf,
   lock: Lock,
-  pause: PauseCircle,
+  utensils: UtensilsCrossed,
 } as const
 
 /**
@@ -52,15 +49,8 @@ export const Hero: React.FC = () => (
 
       <p className="text-lead text-cream/85 mt-6 max-w-[52ch]">{HERO_SUB}</p>
 
-      {/* Entry price. The value is a placeholder until the business confirms it. */}
-      <p className="bg-green-800/90 ring-cream/15 mt-6 inline-flex flex-wrap items-baseline gap-x-2 gap-y-0 rounded-pill px-4 py-2 ring-1">
-        <span className="text-caption text-cream/70">{HERO_PRICE_LEAD}</span>
-        <span className="text-h3 text-gold-400 font-bold">{HERO_PRICE_VALUE}</span>
-        <span className="text-caption text-cream/70">{HERO_PRICE_UNIT}</span>
-      </p>
-
       <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-        <Cta href={HOME_HREF_PLANS} variant="onDark">
+        <Cta href={HOME_HREF_CONTACT} variant="onDark">
           {HERO_PRIMARY}
         </Cta>
         <Cta href={HOME_HREF_HOW_IT_WORKS} variant="onDarkSecondary">

@@ -6,7 +6,7 @@ import * as migration_20261031_090000_payload_customer_auth from './20261031_090
 import * as migration_20261031_120000_customer_has_password from './20261031_120000_customer_has_password';
 import * as migration_20261031_130000_customer_profile from './20261031_130000_customer_profile';
 import * as migration_20261031_150000_enquiries from './20261031_150000_enquiries';
-import * as migration_20261031_170000_razorpay_payments from './20261031_170000_razorpay_payments';
+import * as migration_20261031_180000_remove_plans_subscriptions from './20261031_180000_remove_plans_subscriptions';
 
 
 export const migrations = [
@@ -51,8 +51,8 @@ export const migrations = [
     name: '20261031_150000_enquiries',
   },
   {
-    up: migration_20261031_170000_razorpay_payments.up,
-    down: migration_20261031_170000_razorpay_payments.down,
-    name: '20261031_170000_razorpay_payments',
+    up: migration_20261031_180000_remove_plans_subscriptions.up,
+    down: migration_20261031_180000_remove_plans_subscriptions.down,
+    name: '20261031_180000_remove_plans_subscriptions',
   },
 ];

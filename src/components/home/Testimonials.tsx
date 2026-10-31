@@ -23,7 +23,7 @@ export const Testimonials: React.FC = () => (
 
           <figcaption className="mt-4">
             <span className="text-caption text-ink-900 font-bold">{item.name}</span>
-            <span className="text-caption text-ink-600"> · {item.plan}</span>
+            <span className="text-caption text-ink-600"> · {item.note}</span>
           </figcaption>
         </figure>
       ))}

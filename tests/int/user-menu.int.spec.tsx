@@ -16,7 +16,7 @@ import { UserMenu } from '@/Header/UserMenu'
 
 afterEach(cleanup)
 
-const openMenu = () => screen.getByRole('button', { name: /priya|your plans/i })
+const openMenu = () => screen.getByRole('button', { name: /priya|your account/i })
 
 describe('the account menu', () => {
   it('names the signed in customer in the bar', () => {
@@ -25,10 +25,10 @@ describe('the account menu', () => {
     expect(screen.getByRole('button', { name: 'Priya' })).toBeTruthy()
   })
 
-  it('falls back to the plans label when Payload gave us no name', () => {
+  it('falls back to the account label when Payload gave us no name', () => {
     render(<UserMenu name={null} />)
 
-    expect(screen.getByRole('button', { name: 'Your plans' })).toBeTruthy()
+    expect(screen.getByRole('button', { name: 'Your account' })).toBeTruthy()
   })
 
   it('stays closed until it is asked for', () => {
@@ -37,13 +37,13 @@ describe('the account menu', () => {
     expect(screen.queryByRole('menu')).toBeNull()
   })
 
-  it('opens onto the plans link and the sign out form', () => {
+  it('opens onto the account link and the sign out form', () => {
     render(<UserMenu name="Priya Sharma" />)
 
     fireEvent.click(openMenu())
 
-    const plans = screen.getByRole('menuitem', { name: /your plans/i })
-    expect(plans.getAttribute('href')).toBe('/account')
+    const account = screen.getByRole('menuitem', { name: /your account/i })
+    expect(account.getAttribute('href')).toBe('/account')
 
     const signOut = screen.getByRole('menuitem', { name: /sign out/i })
     expect(signOut.getAttribute('type')).toBe('submit')

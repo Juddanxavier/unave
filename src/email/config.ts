@@ -1,7 +1,5 @@
 import type { Payload } from 'payload'
 
-import { defaultCancellationCopy, mergeCancellationCopy, type CancellationCopy } from './copy'
-
 export type ZeptoMailConfig = {
   apiKey: string
   apiUrl: string
@@ -24,7 +22,6 @@ export type MailEnvironment = {
 }
 
 export type MailSettings = {
-  cancellation: CancellationCopy
   senderName?: string
 }
 
@@ -77,17 +74,10 @@ export const readMailEnvironment = (): MailEnvironment => {
 export const loadMailSettings = async (payload: Payload): Promise<MailSettings> => {
   try {
     const doc = await payload.findGlobal({ slug: 'email-settings', depth: 0 })
-    const settings = doc as
-      | {
-          cancellation?: Parameters<typeof mergeCancellationCopy>[0]
-          senderName?: string | null
-        }
-      | null
-      | undefined
+    const settings = doc as { senderName?: string | null } | null | undefined
     const senderName = settings?.senderName?.trim()
 
     return {
-      cancellation: mergeCancellationCopy(settings?.cancellation),
       senderName: senderName && senderName.length > 0 ? senderName : undefined,
     }
   } catch {
@@ -95,6 +85,6 @@ export const loadMailSettings = async (payload: Payload): Promise<MailSettings> 
       msg: 'Could not read the email settings global. Falling back to the code defaults.',
     })
 
-    return { cancellation: defaultCancellationCopy }
+    return {}
   }
 }

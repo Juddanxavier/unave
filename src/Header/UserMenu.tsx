@@ -25,8 +25,8 @@ interface Props {
 }
 
 /**
- * design.md §6.2. Once a customer holds a session the bar's `Your plans` link
- * becomes this small menu: who is signed in, the way to their plans, and the way
+ * design.md §6.2. Once a customer holds a session the bar's `Your account` link
+ * becomes this small menu: who is signed in, the way to their account, and the way
  * out. Signing out is a plain form post to `/api/customers/logout`, so it works
  * without JavaScript exactly like the sign in form, and it revokes the Payload
  * session row instead of only clearing the cookie.
@@ -43,7 +43,7 @@ export const UserMenu: React.FC<Props> = ({ name }) => {
   /* Set just before opening from the keyboard, so focus lands once the menu renders. */
   const pendingFocus = useRef<'first' | 'last' | null>(null)
   const menuId = useId()
-  const label = firstNameOf(name) ?? 'Your plans'
+  const label = firstNameOf(name) ?? 'Your account'
   const pathname = usePathname()
 
   const close = (returnFocus = false) => {
@@ -172,7 +172,7 @@ export const UserMenu: React.FC<Props> = ({ name }) => {
 
           <Link className={`${ITEM} mt-1`} href="/account" role="menuitem">
             <CalendarCheck aria-hidden="true" className="size-4 shrink-0" strokeWidth={2} />
-            Your plans
+            Your account
           </Link>
 
           <form action="/api/customers/logout" method="post">

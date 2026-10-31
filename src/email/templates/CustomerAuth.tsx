@@ -39,7 +39,7 @@ const COPY: Record<CustomerAuthAction, { heading: string; intro: string; button:
       button: 'Confirm my email',
       heading: 'Confirm your UNAVE account',
       intro:
-        'One click and your account is ready. After that you can see every plan we have for you, and stop one whenever you like.',
+        'One click and your account is ready. After that your delivery details and food preference are already with us.',
       note: 'If you did not create an account, you can ignore this message. Nothing happens until you open the link.',
     },
   }

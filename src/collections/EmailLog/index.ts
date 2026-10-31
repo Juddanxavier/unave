@@ -70,7 +70,6 @@ export const EmailLog: CollectionConfig = {
       name: 'templateKey',
       type: 'select',
       options: [
-        { label: 'Cancellation', value: 'cancellation' },
         { label: 'Customer account', value: 'customerAuth' },
         { label: 'System', value: 'system' },
       ],
@@ -80,16 +79,6 @@ export const EmailLog: CollectionConfig = {
       name: 'subject',
       type: 'text',
       required: true,
-    },
-    {
-      name: 'subscription',
-      type: 'relationship',
-      admin: {
-        description: 'The subscription the message belongs to, when there is one.',
-      },
-      index: true,
-      maxDepth: 0,
-      relationTo: 'subscriptions',
     },
     {
       name: 'status',

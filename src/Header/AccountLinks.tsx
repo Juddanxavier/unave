@@ -30,8 +30,8 @@ interface Props {
  * the `sm` breakpoint up. Two links would crowd the smallest bar, so both live in
  * the drawer as well, where they get a full 56px row each.
  *
- * Signed in, the bar swaps the plain `Your plans` link for the account menu, and
- * the drawer lists `Your plans` and `Sign out` as two 56px rows.
+ * Signed in, the bar swaps the plain `Your account` link for the account menu, and
+ * the drawer lists `Your account` and `Sign out` as two 56px rows.
  *
  * `null` — the check is still in flight — renders the signed out state rather
  * than nothing. Nearly every visitor is signed out, so the server HTML is already
@@ -45,15 +45,15 @@ export const AccountLinks: React.FC<Props> = ({
   signedIn,
   variant = 'bar',
 }) => {
-  const showPlans = signedIn === true
+  const showAccount = signedIn === true
 
   if (variant === 'drawer') {
-    if (showPlans) {
+    if (showAccount) {
       return (
         <ul className="flex flex-col gap-1">
           <li className="text-h3" onClick={onNavigate}>
             <Link className={DRAWER_LINK} href="/account">
-              Your plans
+              Your account
             </Link>
           </li>
           <li className="text-h3">
@@ -85,7 +85,7 @@ export const AccountLinks: React.FC<Props> = ({
     )
   }
 
-  if (showPlans) return <UserMenu name={name} />
+  if (showAccount) return <UserMenu name={name} />
 
   return (
     <>

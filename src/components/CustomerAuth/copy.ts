@@ -23,21 +23,21 @@ interface CustomerAuthCopy {
 
 export const CUSTOMER_AUTH_COPY: Record<CustomerAuthMode, CustomerAuthCopy> = {
   'sign-in': {
-    intro: 'Sign in to see every plan we have for you, and to stop one whenever you like.',
+    intro: 'Sign in to keep your details with us and to reach the kitchen faster.',
     submit: 'Sign in',
     switchHref: '/sign-up',
     switchLabel: 'Sign up',
     switchPrompt: 'New to UNAVE?',
-    title: 'See all your plans in one place',
+    title: 'Your account, in one place',
   },
   'sign-up': {
     intro:
-      'Create your account with a password or with Google. If you already have a plan with us, we will attach it to your account.',
+      'Create your account with a password or with Google. It saves your delivery details and food preference for next time.',
     submit: 'Create account',
     switchHref: '/sign-in',
     switchLabel: 'Sign in',
     switchPrompt: 'Already have an account?',
-    title: 'One account for every plan',
+    title: 'One account with the kitchen',
   },
 }
 
@@ -63,16 +63,16 @@ export const CUSTOMER_AUTH_HIDE_PASSWORD = 'Hide password'
  * only way in, so this panel is reassurance rather than a sales pitch.
  */
 export const AUTH_BRAND = {
-  backLink: 'Back to menu',
+  backLink: 'Back home',
   eyebrow: 'Your account',
   intro:
-    'See what you ordered, when it starts and ends, and stop a plan whenever you like. One account covers every plan you buy.',
+    'Keep your delivery details and food preference with us, and reach the kitchen without typing it all again. One account covers every order.',
   points: [
-    'See every plan tied to your email address',
-    'Stop a plan without hunting for an old email',
+    'Your delivery details, saved once',
+    'A food preference the kitchen remembers',
     'Sign in once, on any device',
   ],
-  title: 'Your plans, always in reach',
+  title: 'Your details, always in reach',
 }
 
 /**
@@ -80,10 +80,10 @@ export const AUTH_BRAND = {
  * "No password, ever." line, which stopped being true the moment this form shipped.
  */
 export const CUSTOMER_AUTH_PRIVACY =
-  'We use your email address to show your plans and to send you messages about them. Nothing else.'
+  'We use your email address to keep your account and to send you messages about your orders. Nothing else.'
 
 export const CUSTOMER_AUTH_UNAVAILABLE =
-  'Google sign-in is not switched on yet. Use your email address and password, or contact us and we will help you with your plan.'
+  'Google sign-in is not switched on yet. Use your email address and password, or contact us and we will help you with your account.'
 
 /**
  * Things that worked. Green enough to notice, quiet enough not to shout, and each
@@ -94,7 +94,7 @@ export const CUSTOMER_AUTH_NOTICES: Record<string, string> = {
     'Check your inbox for the link that confirms your address. Open it, then sign in here.',
   resent: 'If that address still needs confirming, a new link is on its way.',
   sent: 'If that address has an account, a link to choose a new password is on its way.',
-  verified: 'Your email address is confirmed. Sign in to see your plans.',
+  verified: 'Your email address is confirmed. Sign in to continue.',
 }
 
 /**

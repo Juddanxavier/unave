@@ -75,9 +75,6 @@ export interface Config {
     users: User;
     customers: Customer;
     enquiries: Enquiry;
-    plans: Plan;
-    subscriptions: Subscription;
-    payments: Payment;
     'email-log': EmailLog;
     redirects: Redirect;
     forms: Form;
@@ -103,9 +100,6 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     customers: CustomersSelect<false> | CustomersSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
-    plans: PlansSelect<false> | PlansSelect<true>;
-    subscriptions: SubscriptionsSelect<false> | SubscriptionsSelect<true>;
-    payments: PaymentsSelect<false> | PaymentsSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -457,7 +451,7 @@ export interface User {
   id: number;
   name?: string | null;
   /**
-   * Admins manage users. Staff run plans and subscriptions.
+   * Admins manage users. Staff run the content and the enquiries.
    */
   role: 'admin' | 'staff';
   updatedAt: string;
@@ -823,11 +817,11 @@ export interface Customer {
   id: number;
   name?: string | null;
   /**
-   * Saved by the customer on their account page, and copied onto new plans.
+   * Saved by the customer on their account page, and used when the kitchen is in touch.
    */
   phone?: string | null;
   /**
-   * Saved by the customer on their account page, and copied onto new plans.
+   * Saved by the customer on their account page, and used when the kitchen is in touch.
    */
   address?: {
     line1?: string | null;
@@ -891,179 +885,6 @@ export interface Enquiry {
   createdAt: string;
 }
 /**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "plans".
- */
-export interface Plan {
-  id: number;
-  title: string;
-  /**
-   * Short text for the plan card.
-   */
-  summary?: string | null;
-  /**
-   * Long text for the plan detail page.
-   */
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * How long one paid period runs.
-   */
-  billingPeriod: 'weekly' | 'monthly';
-  /**
-   * How many meals the customer gets each week.
-   */
-  mealsPerWeek: number;
-  /**
-   * Whole rupees, tax included.
-   */
-  price: number;
-  /**
-   * Short lines shown on the plan page, for example what is included.
-   */
-  highlights?:
-    | {
-        text: string;
-        id?: string | null;
-      }[]
-    | null;
-  image?: (number | null) | Media;
-  /**
-   * Only active plans appear on the public site.
-   */
-  isActive?: boolean | null;
-  /**
-   * Lower numbers appear first.
-   */
-  sortOrder?: number | null;
-  /**
-   * When enabled, the slug will auto-generate from the title field on save and autosave.
-   */
-  generateSlug?: boolean | null;
-  slug: string;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscriptions".
- */
-export interface Subscription {
-  id: number;
-  customerName: string;
-  email: string;
-  phone: string;
-  address: {
-    line1: string;
-    line2?: string | null;
-    city: string;
-    state: string;
-    pincode: string;
-  };
-  plan: number | Plan;
-  /**
-   * The account this plan belongs to. Linked by email when a customer signs in with Google. A plan with no account still works through its private link.
-   */
-  customer?: (number | null) | Customer;
-  status: 'new' | 'active' | 'cancel_requested' | 'cancelled' | 'expired';
-  /**
-   * Copied from the plan when the subscription is created.
-   */
-  billingPeriod?: ('weekly' | 'monthly') | null;
-  /**
-   * Copied from the plan when the subscription is created.
-   */
-  mealsPerWeek?: number | null;
-  /**
-   * Copied from the plan when the subscription is created.
-   */
-  price?: number | null;
-  /**
-   * Set by staff when the subscription is activated.
-   */
-  startDate?: string | null;
-  /**
-   * Calculated from the start date and the billing period.
-   */
-  endDate?: string | null;
-  /**
-   * Set by checkout for the one-time payment of the current period. The period ends on its end date; renewal is a new payment.
-   */
-  razorpayOrderId?: string | null;
-  /**
-   * UPI reference or bank note for the payment taken outside the app.
-   */
-  paymentReference?: string | null;
-  paymentReceivedAt?: string | null;
-  adminNotes?: string | null;
-  cancelRequestedAt?: string | null;
-  cancelledAt?: string | null;
-  /**
-   * Who stopped the plan. Set to guest by the plan page, customer by the account page, else staff.
-   */
-  cancelledBy?: ('guest' | 'customer' | 'staff') | null;
-  /**
-   * Required when the guest stopped the plan. Staff only.
-   */
-  cancellationReason?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
- * Every Razorpay payment for a plan: the first charge at checkout and one row per renewal. Written by the app, read only here.
- *
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payments".
- */
-export interface Payment {
-  id: number;
-  /**
-   * Razorpay payment id, for example pay_1234. One row per payment.
-   */
-  razorpayPaymentId: string;
-  /**
-   * The one-time Razorpay order the payment belongs to.
-   */
-  razorpayOrderId?: string | null;
-  subscription?: (number | null) | Subscription;
-  plan?: (number | null) | Plan;
-  /**
-   * In paise, exactly as Razorpay charged it.
-   */
-  amount: number;
-  currency: string;
-  status: 'paid' | 'failed';
-  /**
-   * How it was paid, for example upi, card or netbanking. Reported by Razorpay.
-   */
-  method?: string | null;
-  /**
-   * The address the payment was made with, for the audit trail.
-   */
-  email?: string | null;
-  contact?: string | null;
-  source: 'checkout' | 'webhook';
-  /**
-   * When Razorpay reported the payment.
-   */
-  eventAt?: string | null;
-  updatedAt: string;
-  createdAt: string;
-}
-/**
  * Every mail attempt, written by the mail module and read only. Rows are pruned after 90 days.
  *
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1080,12 +901,8 @@ export interface EmailLog {
    */
   recipientMasked: string;
   recipientName?: string | null;
-  templateKey: 'cancellation' | 'customerAuth' | 'system';
+  templateKey: 'customerAuth' | 'system';
   subject: string;
-  /**
-   * The subscription the message belongs to, when there is one.
-   */
-  subscription?: (number | null) | Subscription;
   status: 'sent' | 'failed' | 'skipped';
   transport: 'zeptomail' | 'smtp' | 'none';
   fallbackUsed?: boolean | null;
@@ -1326,18 +1143,6 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'enquiries';
         value: number | Enquiry;
-      } | null)
-    | ({
-        relationTo: 'plans';
-        value: number | Plan;
-      } | null)
-    | ({
-        relationTo: 'subscriptions';
-        value: number | Subscription;
-      } | null)
-    | ({
-        relationTo: 'payments';
-        value: number | Payment;
       } | null)
     | ({
         relationTo: 'email-log';
@@ -1775,87 +1580,6 @@ export interface EnquiriesSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "plans_select".
- */
-export interface PlansSelect<T extends boolean = true> {
-  title?: T;
-  summary?: T;
-  description?: T;
-  billingPeriod?: T;
-  mealsPerWeek?: T;
-  price?: T;
-  highlights?:
-    | T
-    | {
-        text?: T;
-        id?: T;
-      };
-  image?: T;
-  isActive?: T;
-  sortOrder?: T;
-  generateSlug?: T;
-  slug?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "subscriptions_select".
- */
-export interface SubscriptionsSelect<T extends boolean = true> {
-  customerName?: T;
-  email?: T;
-  phone?: T;
-  address?:
-    | T
-    | {
-        line1?: T;
-        line2?: T;
-        city?: T;
-        state?: T;
-        pincode?: T;
-      };
-  plan?: T;
-  customer?: T;
-  status?: T;
-  billingPeriod?: T;
-  mealsPerWeek?: T;
-  price?: T;
-  startDate?: T;
-  endDate?: T;
-  razorpayOrderId?: T;
-  paymentReference?: T;
-  paymentReceivedAt?: T;
-  adminNotes?: T;
-  cancelRequestedAt?: T;
-  cancelledAt?: T;
-  cancelledBy?: T;
-  cancellationReason?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "payments_select".
- */
-export interface PaymentsSelect<T extends boolean = true> {
-  razorpayPaymentId?: T;
-  razorpayOrderId?: T;
-  subscription?: T;
-  plan?: T;
-  amount?: T;
-  currency?: T;
-  status?: T;
-  method?: T;
-  email?: T;
-  contact?: T;
-  source?: T;
-  eventAt?: T;
-  updatedAt?: T;
-  createdAt?: T;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "email-log_select".
  */
 export interface EmailLogSelect<T extends boolean = true> {
@@ -1864,7 +1588,6 @@ export interface EmailLogSelect<T extends boolean = true> {
   recipientName?: T;
   templateKey?: T;
   subject?: T;
-  subscription?: T;
   status?: T;
   transport?: T;
   fallbackUsed?: T;
@@ -2174,11 +1897,11 @@ export interface Header {
      */
     note?: string | null;
     /**
-     * The underlined words on the right, for example "See plans".
+     * The underlined words on the right, for example "Message us".
      */
     linkLabel?: string | null;
     /**
-     * The whole bar links here. A path such as /plans, or a full URL.
+     * The whole bar links here. A path such as /contact, or a full URL.
      */
     linkUrl?: string | null;
     newTab?: boolean | null;
@@ -2212,7 +1935,7 @@ export interface Header {
   cta: {
     label: string;
     /**
-     * A path such as /plans, or a full URL.
+     * A path such as /contact, or a full URL.
      */
     url: string;
     newTab?: boolean | null;
@@ -2292,7 +2015,7 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
- * Copy for the plan emails. The sender address and reply address come from the server environment.
+ * Sender details for account mail. The sender address and reply address come from the server environment.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "email-settings".
@@ -2311,31 +2034,6 @@ export interface EmailSetting {
    * Read only. Set by MAIL_REPLY_TO.
    */
   replyToDisplay?: string | null;
-  /**
-   * The message a customer receives after cancelling their plan.
-   */
-  cancellation?: {
-    /**
-     * Leave blank to use the default.
-     */
-    subject?: string | null;
-    /**
-     * Leave blank to use the default.
-     */
-    heading?: string | null;
-    /**
-     * Leave blank to use the default.
-     */
-    intro?: string | null;
-    /**
-     * Leave blank to use the default.
-     */
-    footerNote?: string | null;
-    /**
-     * Leave blank to use the default.
-     */
-    signature?: string | null;
-  };
   updatedAt?: string | null;
   createdAt?: string | null;
 }
@@ -2451,15 +2149,6 @@ export interface EmailSettingsSelect<T extends boolean = true> {
   senderName?: T;
   fromAddressDisplay?: T;
   replyToDisplay?: T;
-  cancellation?:
-    | T
-    | {
-        subject?: T;
-        heading?: T;
-        intro?: T;
-        footerNote?: T;
-        signature?: T;
-      };
   updatedAt?: T;
   createdAt?: T;
   globalType?: T;

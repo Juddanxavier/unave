@@ -106,24 +106,6 @@ export const checkEnquiryIpLimit = (
     ? { limited: false }
     : consumeRateLimit('enquiry-ip', ip, ENQUIRY_IP_LIMIT, ENQUIRY_IP_WINDOW_MS, now)
 
-/**
- * The checkout action. It creates a Razorpay subscription and a subscription row
- * before any money moves, so five an hour from one address starves the scripts
- * without stopping a person who mistyped a pincode a few times. The payment
- * confirmation is not limited: it is guarded by a Razorpay signature, and a
- * throttle there would punish exactly the customer whose payment just worked.
- */
-export const CHECKOUT_IP_LIMIT = 5
-export const CHECKOUT_IP_WINDOW_MS = HOUR
-
-export const checkCheckoutIpLimit = (
-  ip: string | null,
-  now: number = Date.now(),
-): RateLimitResult =>
-  ip === null
-    ? { limited: false }
-    : consumeRateLimit('checkout-ip', ip, CHECKOUT_IP_LIMIT, CHECKOUT_IP_WINDOW_MS, now)
-
 type HeaderLike = { get: (name: string) => string | null | undefined }
 
 /**

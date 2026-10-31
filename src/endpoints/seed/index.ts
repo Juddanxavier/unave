@@ -225,9 +225,9 @@ export const seed = async ({
         announcement: {
           enabled: true,
           text: "This week's menu is live",
-          note: 'Weekly and monthly plans are open',
-          linkLabel: 'See plans',
-          linkUrl: '/plans',
+          note: 'The kitchen is taking orders',
+          linkLabel: 'Message us',
+          linkUrl: '/contact',
           newTab: false,
         },
         navItems: [
@@ -236,13 +236,6 @@ export const seed = async ({
               type: 'custom',
               label: 'Home',
               url: '/',
-            },
-          },
-          {
-            link: {
-              type: 'custom',
-              label: 'Plans',
-              url: '/plans',
             },
           },
           {
@@ -278,9 +271,9 @@ export const seed = async ({
           },
         ],
         cta: {
-          label: 'Start My Subscription',
+          label: 'Message the kitchen',
           newTab: false,
-          url: '/plans',
+          url: '/contact',
         },
         // Left empty until the business supplies a number, which hides the
         // floating WhatsApp button (design.md §6.2).
@@ -299,8 +292,6 @@ export const seed = async ({
           {
             title: 'Explore',
             links: [
-              { link: { type: 'custom', label: 'Plans', url: '/plans' } },
-              { link: { type: 'custom', label: 'About us', url: '/about' } },
               { link: { type: 'custom', label: 'How it works', url: '/#how-it-works' } },
               { link: { type: 'custom', label: 'Common questions', url: '/#faq' } },
               {

@@ -43,7 +43,7 @@ export const Footer: GlobalConfig = {
         {
           title: 'Explore',
           links: [
-            { link: { type: 'custom', url: '/plans', label: 'Plans' } },
+            { link: { type: 'custom', url: '/about', label: 'About us' } },
             { link: { type: 'custom', url: '/#how-it-works', label: 'How it works' } },
             { link: { type: 'custom', url: '/#faq', label: 'Common questions' } },
           ],

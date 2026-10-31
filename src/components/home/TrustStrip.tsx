@@ -1,6 +1,7 @@
 import {
   BadgeCheck,
   CalendarDays,
+  Leaf,
   PauseCircle,
   ShieldCheck,
   Truck,
@@ -13,6 +14,7 @@ import { TRUST } from '@/utilities/homeCopy'
 const TRUST_ICONS = {
   badge: BadgeCheck,
   calendar: CalendarDays,
+  leaf: Leaf,
   pause: PauseCircle,
   shield: ShieldCheck,
   truck: Truck,
