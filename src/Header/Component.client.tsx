@@ -1,6 +1,6 @@
 'use client'
 
-import { Menu, MessageCircle, Search } from 'lucide-react'
+import { Menu, Search } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React, { useEffect, useRef, useState } from 'react'
@@ -9,8 +9,10 @@ import type { Header as HeaderType } from '@/payload-types'
 
 import { CTA_BASE, CTA_VARIANTS } from '@/components/Cta'
 import { Logo } from '@/components/Logo/Logo'
+import { WhatsAppIcon } from '@/components/WhatsAppIcon'
 import { useHeaderTheme } from '@/providers/HeaderTheme'
 import { cn } from '@/utilities/ui'
+import { whatsappHref } from '@/utilities/whatsapp'
 import { AccountLinks } from './AccountLinks'
 import { MobileMenu } from './MobileMenu'
 import { HeaderNav } from './Nav'
@@ -32,6 +34,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
   const [session, setSession] = useState<{ name: string | null; signedIn: boolean } | null>(null)
   const signedIn = session?.signedIn ?? null
   const lastScrollY = useRef(0)
+  const barRef = useRef<HTMLElement>(null)
   const { headerTheme, setHeaderTheme } = useHeaderTheme()
   const pathname = usePathname()
   const drawerRef = useRef<HTMLDivElement>(null)
@@ -53,6 +56,27 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
     if (headerTheme && headerTheme !== theme) setTheme(headerTheme)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [headerTheme])
+
+  /* The band that opens a page runs up behind the bar, so the page has to know how
+     tall the bar really is: it changes with the breakpoint and with how many rows
+     the menu links take. Publishing it beats guessing it in the stylesheet. */
+  useEffect(() => {
+    const bar = barRef.current
+    if (!bar) return
+
+    const publish = () => {
+      document.documentElement.style.setProperty('--navbar-height', `${bar.offsetHeight}px`)
+    }
+
+    publish()
+    const observer = new ResizeObserver(publish)
+    observer.observe(bar)
+
+    return () => {
+      observer.disconnect()
+      document.documentElement.style.removeProperty('--navbar-height')
+    }
+  }, [])
 
   useEffect(() => {
     const onScroll = () => {
@@ -175,6 +199,7 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
         <header
           className="site-header border-b border-border bg-background transition-colors duration-200 motion-reduce:transition-none"
           data-scrolled={scrolled ? 'true' : 'false'}
+          ref={barRef}
           {...(theme ? { 'data-theme': theme } : {})}
         >
           <div className="container flex items-center justify-between gap-6 py-3">
@@ -241,14 +266,12 @@ export const HeaderClient: React.FC<HeaderClientProps> = ({ data }) => {
       {whatsappNumber ? (
         <a
           aria-label="Message UNAVE on WhatsApp"
-          className="bg-green-600 text-cream hover:bg-green-700 fixed right-4 bottom-4 z-30 inline-flex size-13 items-center justify-center rounded-pill shadow-md transition-colors focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:ring-gold-400 focus-visible:outline-none motion-reduce:transition-none"
-          href={`https://wa.me/${whatsappNumber}${
-            whatsappMessage ? `?text=${encodeURIComponent(whatsappMessage)}` : ''
-          }`}
+          className="bg-green-600 text-cream hover:bg-green-700 rounded-pill focus-visible:ring-gold-400 fixed right-4 bottom-4 z-30 inline-flex size-13 items-center justify-center shadow-md transition-colors focus-visible:ring-[3px] focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+          href={whatsappHref(whatsappNumber, whatsappMessage || null)}
           rel="noopener noreferrer"
           target="_blank"
         >
-          <MessageCircle aria-hidden="true" className="size-6" strokeWidth={2} />
+          <WhatsAppIcon className="size-6" />
         </a>
       ) : null}
     </>

@@ -7,8 +7,8 @@ const defaultLabels = {
 
 const defaultCollectionLabels = {
   posts: {
-    plural: 'Posts',
-    singular: 'Post',
+    plural: 'blog posts',
+    singular: 'blog post',
   },
 }
 
@@ -45,11 +45,11 @@ export const PageRange: React.FC<{
     {}
 
   return (
-    <div className={[className, 'font-semibold'].filter(Boolean).join(' ')}>
+    <div className={[className, 'text-caption text-ink-600'].filter(Boolean).join(' ')}>
       {(typeof totalDocs === 'undefined' || totalDocs === 0) && 'Search produced no results.'}
       {typeof totalDocs !== 'undefined' &&
         totalDocs > 0 &&
-        `Showing ${indexStart}${indexStart > 0 ? ` - ${indexEnd}` : ''} of ${totalDocs} ${
+        `Showing ${indexStart}${indexStart > 0 ? ` to ${indexEnd}` : ''} of ${totalDocs} ${
           totalDocs > 1 ? plural : singular
         }`}
     </div>

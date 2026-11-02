@@ -14,6 +14,7 @@ import {
   backWithError,
   isSameOriginPost,
   readFormFields as readFields,
+  safeReturnPath,
   seeOther,
   withParams,
 } from '@/utilities/formPost'
@@ -82,27 +83,33 @@ const errorName = (error: unknown): string =>
  */
 export const customerLoginEndpoint: Endpoint = {
   handler: async (req) => {
+    const fields = await readFields(req)
+    const returnTo = safeReturnPath(fields.return)
+
+    /** The visitor came from somewhere worth going back to. Keep the value on
+        every exit, so a failed attempt still lands them where they started. */
+    const keep: Record<string, string> = returnTo ? { return: returnTo } : {}
+
     if (!isSameOriginPost(req)) {
       req.payload.logger.warn({ msg: 'customer_login_cross_site_rejected' })
-      return backWithError(SIGN_IN_PATH, 'session')
+      return backWithError(SIGN_IN_PATH, 'session', keep)
     }
 
-    const { email, password } = await readFields(req)
-    const parsed = signInSchema.safeParse({ email, password })
+    const parsed = signInSchema.safeParse({ email: fields.email, password: fields.password })
 
     if (!parsed.success) {
-      return backWithError(SIGN_IN_PATH, 'credentials')
+      return backWithError(SIGN_IN_PATH, 'credentials', keep)
     }
 
     const address = parsed.data.email
     const secret = parsed.data.password
 
     if (checkLoginIpLimit(getClientIp(req.headers)).limited) {
-      return backWithError(SIGN_IN_PATH, 'slow')
+      return backWithError(SIGN_IN_PATH, 'slow', keep)
     }
 
     if (checkLoginEmailLimit(address).limited) {
-      return backWithError(SIGN_IN_PATH, 'slow')
+      return backWithError(SIGN_IN_PATH, 'slow', keep)
     }
 
     try {
@@ -116,7 +123,7 @@ export const customerLoginEndpoint: Endpoint = {
 
       if (!result.token || !signedIn) {
         req.payload.logger.error({ msg: 'customer_login_no_token' })
-        return backWithError(SIGN_IN_PATH, 'session')
+        return backWithError(SIGN_IN_PATH, 'session', keep)
       }
 
       // Backfill the flag for accounts created before it existed: a completed
@@ -134,24 +141,24 @@ export const customerLoginEndpoint: Endpoint = {
         req.payload.logger.warn({ msg: 'customer_login_password_flag_failed' })
       }
 
-      return seeOther(ACCOUNT_PATH, [sessionCookie(result.token)])
+      return seeOther(returnTo ?? ACCOUNT_PATH, [sessionCookie(result.token)])
     } catch (error) {
       const name = errorName(error)
 
       if (name === 'UnverifiedEmail') {
         // The password was right, so naming the real problem gives nothing away.
-        return backWithError(SIGN_IN_PATH, 'unverified')
+        return backWithError(SIGN_IN_PATH, 'unverified', keep)
       }
 
       if (name === 'LockedAuth') {
-        return backWithError(SIGN_IN_PATH, 'locked')
+        return backWithError(SIGN_IN_PATH, 'locked', keep)
       }
 
       req.payload.logger.warn({
         err: error instanceof Error ? error.message : String(error),
         msg: 'customer_login_rejected',
       })
-      return backWithError(SIGN_IN_PATH, 'credentials')
+      return backWithError(SIGN_IN_PATH, 'credentials', keep)
     }
   },
   method: 'post',

@@ -27,8 +27,8 @@ const TRUST_ICONS = {
  * in `homeCopy`, so nothing on this row is aspirational.
  */
 export const TrustStrip: React.FC = () => (
-  <section className="bg-card border-line border-y">
-    <ul className="container grid grid-cols-2 gap-x-6 gap-y-6 py-10 sm:grid-cols-3">
+  <section className="bg-green-50 border-line border-y">
+    <ul className="container grid grid-cols-2 gap-x-6 gap-y-6 py-10 sm:grid-cols-3 xl:grid-cols-5">
       {TRUST.map((item) => {
         const Icon = TRUST_ICONS[item.icon]
 
@@ -36,7 +36,7 @@ export const TrustStrip: React.FC = () => (
           <li className="flex items-start gap-3" key={item.label}>
             <span
               aria-hidden="true"
-              className="bg-green-50 text-green-700 flex size-9 shrink-0 items-center justify-center rounded-pill"
+              className="bg-green-100 text-green-700 flex size-9 shrink-0 items-center justify-center rounded-pill"
             >
               <Icon className="size-4.5" strokeWidth={2} />
             </span>

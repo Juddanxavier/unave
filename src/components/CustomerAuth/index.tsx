@@ -35,6 +35,8 @@ interface Props {
   mode: CustomerAuthMode
   /** Plain code from `?registered=`, `?resent=` or `?verified=`. */
   notice?: string
+  /** A checked path from `?return=`, carried through the password sign in. */
+  returnTo?: string | null
 }
 
 /**
@@ -48,7 +50,7 @@ interface Props {
  * Sign in and sign up differ only in copy: the same card, the same fields, the same
  * one primary action.
  */
-export const CustomerAuth: React.FC<Props> = ({ error, mode, notice }) => {
+export const CustomerAuth: React.FC<Props> = ({ error, mode, notice, returnTo }) => {
   const copy = CUSTOMER_AUTH_COPY[mode]
   const message = customerAuthError(error)
   const confirmation = customerAuthNotice(notice)
@@ -116,6 +118,9 @@ export const CustomerAuth: React.FC<Props> = ({ error, mode, notice }) => {
               label={CUSTOMER_AUTH_FOOD_PREFERENCE_LABEL}
             />
           ) : null}
+          {mode === 'sign-in' && returnTo ? (
+            <input name="return" type="hidden" value={returnTo} />
+          ) : null}
         </PasswordForm>
       </div>
 
@@ -126,7 +131,15 @@ export const CustomerAuth: React.FC<Props> = ({ error, mode, notice }) => {
       </div>
 
       {configured ? (
-        <Cta className="w-full" href="/api/customers/oauth/google" variant="secondary">
+        <Cta
+          className="w-full"
+          href={
+            returnTo
+              ? `/api/customers/oauth/google?return=${encodeURIComponent(returnTo)}`
+              : '/api/customers/oauth/google'
+          }
+          variant="secondary"
+        >
           <GoogleIcon />
           {CUSTOMER_AUTH_CTA}
         </Cta>

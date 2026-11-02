@@ -13,9 +13,12 @@ import React from 'react'
 
 import { Cta } from '@/components/Cta'
 import { Notice } from '@/components/Notice'
+import { WhatsAppIcon } from '@/components/WhatsAppIcon'
 import { Section } from '@/components/home/Section'
 import { Swoosh } from '@/components/Swoosh'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import { WHATSAPP_FALLBACK_LABEL, whatsappHref } from '@/utilities/whatsapp'
 import {
   ABOUT_FINAL_BODY,
   ABOUT_FINAL_HEADING,
@@ -40,6 +43,7 @@ import {
   ABOUT_WORK,
   ABOUT_WORK_HEADING,
 } from '@/utilities/aboutCopy'
+import type { Footer } from '@/payload-types'
 
 export const metadata: Metadata = {
   alternates: { canonical: '/about' },
@@ -60,11 +64,14 @@ const WORK_ICONS = [UtensilsCrossed, Leaf, MessageCircle]
  * The about page (spec 0006): who cooks the meals and how the kitchen works.
  * Static content, so it stays a server component end to end.
  */
-export default function AboutPage() {
+export default async function AboutPage() {
+  const footer = (await getCachedGlobal('footer', 1)()) as Footer | null
+  const whatsapp = footer?.contact?.whatsapp ?? null
+
   return (
     <main>
       <Section
-        className="overflow-hidden bg-green-900 md:py-20"
+        className="opening-band overflow-hidden bg-green-900 md:py-20"
         image={{ priority: true, src: ABOUT_IMAGES.hero }}
         overlay="bg-green-900/85"
         tone="green"
@@ -84,9 +91,21 @@ export default function AboutPage() {
           <p className="text-lead text-cream/85 mt-6 max-w-[52ch]">{ABOUT_HERO_SUB}</p>
 
           <div className="mt-8">
-            <Cta href="/contact" variant="onDark">
-              {ABOUT_HERO_CTA}
-            </Cta>
+            {whatsapp ? (
+              <Cta
+                href={whatsappHref(whatsapp)}
+                rel="noopener noreferrer"
+                target="_blank"
+                variant="onDark"
+              >
+                <WhatsAppIcon className="size-4" />
+                {ABOUT_HERO_CTA}
+              </Cta>
+            ) : (
+              <Cta href="/contact" variant="onDark">
+                {WHATSAPP_FALLBACK_LABEL}
+              </Cta>
+            )}
           </div>
 
           <ul className="mt-8 flex flex-wrap gap-x-5 gap-y-2">
@@ -188,9 +207,21 @@ export default function AboutPage() {
           <p className="text-lead text-cream/85 mt-4">{ABOUT_FINAL_BODY}</p>
 
           <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-            <Cta href="/contact" variant="onDark">
-              {ABOUT_FINAL_PRIMARY}
-            </Cta>
+            {whatsapp ? (
+              <Cta
+                href={whatsappHref(whatsapp)}
+                rel="noopener noreferrer"
+                target="_blank"
+                variant="onDark"
+              >
+                <WhatsAppIcon className="size-4" />
+                {ABOUT_FINAL_PRIMARY}
+              </Cta>
+            ) : (
+              <Cta href="/contact" variant="onDark">
+                {WHATSAPP_FALLBACK_LABEL}
+              </Cta>
+            )}
             <Cta href="/contact" variant="onDarkSecondary">
               {ABOUT_FINAL_SECONDARY}
             </Cta>

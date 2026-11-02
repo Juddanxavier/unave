@@ -14,20 +14,21 @@ import { getClientSideURL } from '@/utilities/getURL'
 
 const baseClass = 'admin-bar'
 
-const collectionLabels = {
+/**
+ * The route segment is what the public URL shows, while the slug is Payload's own
+ * name for the collection. The blog is the one place where the two differ, so the
+ * mapping is written out rather than derived from the segment.
+ */
+const collections = {
+  blog: {
+    labels: { plural: 'Blog', singular: 'Blog post' },
+    slug: 'posts',
+  },
   pages: {
-    plural: 'Pages',
-    singular: 'Page',
+    labels: { plural: 'Pages', singular: 'Page' },
+    slug: 'pages',
   },
-  posts: {
-    plural: 'Posts',
-    singular: 'Post',
-  },
-  projects: {
-    plural: 'Projects',
-    singular: 'Project',
-  },
-}
+} as const
 
 const Title: React.FC = () => <span>Dashboard</span>
 
@@ -37,9 +38,10 @@ export const AdminBar: React.FC<{
   const { adminBarProps } = props || {}
   const segments = useSelectedLayoutSegments()
   const [show, setShow] = useState(false)
-  const collection = (
-    collectionLabels[segments?.[1] as keyof typeof collectionLabels] ? segments[1] : 'pages'
-  ) as keyof typeof collectionLabels
+  const segment = segments?.find((value) => value in collections) as
+    | keyof typeof collections
+    | undefined
+  const collection = segment ? collections[segment] : collections.pages
   const router = useRouter()
 
   const onAuthChange = React.useCallback((user: PayloadMeUser) => {
@@ -63,11 +65,8 @@ export const AdminBar: React.FC<{
             user: 'text-white',
           }}
           cmsURL={getClientSideURL()}
-          collectionSlug={collection}
-          collectionLabels={{
-            plural: collectionLabels[collection]?.plural || 'Pages',
-            singular: collectionLabels[collection]?.singular || 'Page',
-          }}
+          collectionSlug={collection.slug}
+          collectionLabels={collection.labels}
           logo={<Title />}
           onAuthChange={onAuthChange}
           onPreviewExit={() => {

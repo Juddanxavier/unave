@@ -17,6 +17,7 @@ import {
   readCookie,
   serializeCookie,
 } from '@/utilities/customerSession'
+import { safeReturnPath } from '@/utilities/formPost'
 import { getServerSideURL } from '@/utilities/getURL'
 
 import {
@@ -200,6 +201,14 @@ export const googleAuthorizeEndpoint: Endpoint = {
 
     const request = createGoogleAuthRequest()
     const headers = new Headers()
+    let returnTo: string | null = null
+
+    try {
+      const current = new URL(req.url ?? '', getServerSideURL())
+      returnTo = safeReturnPath(current.searchParams.get('return'))
+    } catch {
+      returnTo = null
+    }
 
     headers.set(
       'Location',
@@ -213,7 +222,11 @@ export const googleAuthorizeEndpoint: Endpoint = {
       'Set-Cookie',
       serializeCookie(
         CUSTOMER_OAUTH_COOKIE,
-        packAuthState({ state: request.state, verifier: request.verifier }),
+        packAuthState({
+          ...(returnTo ? { returnTo } : {}),
+          state: request.state,
+          verifier: request.verifier,
+        }),
         customerOauthCookieOptions,
       ),
     )
@@ -298,7 +311,7 @@ export const googleCallbackEndpoint: Endpoint = {
 
     const headers = new Headers()
 
-    headers.set('Location', ACCOUNT_PATH)
+    headers.set('Location', safeReturnPath(stored.returnTo) ?? ACCOUNT_PATH)
     // Clear the round trip cookie, then set the session.
     headers.append(
       'Set-Cookie',

@@ -19,6 +19,11 @@ declare global {
       SMTP_USER: string
       SMTP_PASSWORD: string
       SMTP_SECURE: string
+
+      // Razorpay (optional: blank keeps the store read only)
+      RAZORPAY_KEY_ID: string
+      RAZORPAY_KEY_SECRET: string
+      RAZORPAY_WEBHOOK_SECRET: string
     }
   }
 }

@@ -1,15 +1,22 @@
 'use client'
-import { cn } from '@/utilities/ui'
-import useClickableCard from '@/utilities/useClickableCard'
+import Image from 'next/image'
 import Link from 'next/link'
-import React, { Fragment } from 'react'
+import React from 'react'
 
 import type { Post } from '@/payload-types'
 
-import { Media } from '@/components/Media'
+import { collectionHref } from '@/utilities/collectionPath'
+import { getMediaUrl } from '@/utilities/getMediaUrl'
+import { cn } from '@/utilities/ui'
+import useClickableCard from '@/utilities/useClickableCard'
 
-export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title'>
+export type CardPostData = Pick<Post, 'slug' | 'categories' | 'meta' | 'title' | 'publishedAt'>
 
+/**
+ * The blog card. One style covers the index, the search results, an archive block
+ * and the related posts under an article. The whole card is the target, with the
+ * title as the real link so the card is keyboard operable (design.md §6.4).
+ */
 export const Card: React.FC<{
   alignItems?: 'center'
   className?: string
@@ -27,53 +34,63 @@ export const Card: React.FC<{
   const hasCategories = categories && Array.isArray(categories) && categories.length > 0
   const titleToUse = titleFromProps || title
   const sanitizedDescription = description?.replace(/\s/g, ' ') // replace non-breaking space with white space
-  const href = `/${relationTo}/${slug}`
+  const href = collectionHref(relationTo ?? 'posts', slug ?? '')
+  const image = metaImage && typeof metaImage === 'object' ? metaImage : null
 
   return (
     <article
       className={cn(
-        'border border-border rounded-lg overflow-hidden bg-card hover:cursor-pointer',
+        'bg-card border-line group hover:shadow-md flex h-full flex-col overflow-hidden rounded-md border transition-[transform,box-shadow] duration-200 hover:-translate-y-1 motion-reduce:transition-none motion-reduce:hover:translate-y-0',
         className,
       )}
       ref={card.ref}
     >
-      <div className="relative w-full ">
-        {!metaImage && <div className="">No image</div>}
-        {metaImage && typeof metaImage !== 'string' && <Media resource={metaImage} size="33vw" />}
-      </div>
-      <div className="p-4">
-        {showCategories && hasCategories && (
-          <div className="uppercase text-sm mb-4">
-            {categories?.map((category, index) => {
-              if (typeof category === 'object') {
-                const { title: titleFromCategory } = category
+      {image?.url ? (
+        <div className="bg-green-50 relative aspect-[4/3]">
+          <Image
+            alt={image.alt ?? ''}
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.04] motion-reduce:group-hover:scale-100"
+            fill
+            quality={75}
+            sizes="(min-width: 64rem) 33vw, (min-width: 40rem) 50vw, 100vw"
+            src={getMediaUrl(image.url, image.updatedAt)}
+          />
+        </div>
+      ) : null}
 
-                const categoryTitle = titleFromCategory || 'Untitled category'
+      <div className="flex flex-1 flex-col p-6">
+        {showCategories && hasCategories ? (
+          <ul className="mb-3 flex flex-wrap gap-2">
+            {categories.map((category, index) => {
+              if (typeof category !== 'object' || category === null) return null
 
-                const isLast = index === categories.length - 1
-
-                return (
-                  <Fragment key={index}>
-                    {categoryTitle}
-                    {!isLast && <Fragment>, &nbsp;</Fragment>}
-                  </Fragment>
-                )
-              }
-
-              return null
+              return (
+                <li
+                  className="bg-green-100 text-green-700 text-caption rounded-pill px-3 py-1 font-semibold"
+                  key={category.id ?? index}
+                >
+                  {category.title || 'Untitled category'}
+                </li>
+              )
             })}
-          </div>
-        )}
-        {titleToUse && (
-          <div className="prose">
-            <h3>
-              <Link className="not-prose" href={href} ref={link.ref}>
-                {titleToUse}
-              </Link>
-            </h3>
-          </div>
-        )}
-        {description && <div className="mt-2">{description && <p>{sanitizedDescription}</p>}</div>}
+          </ul>
+        ) : null}
+
+        {titleToUse ? (
+          <h3 className="text-h3">
+            <Link
+              className="focus-visible:ring-green-500 rounded-sm focus-visible:ring-[3px] focus-visible:outline-none"
+              href={href}
+              ref={link.ref}
+            >
+              {titleToUse}
+            </Link>
+          </h3>
+        ) : null}
+
+        {sanitizedDescription ? (
+          <p className="text-body text-ink-600 mt-3">{sanitizedDescription}</p>
+        ) : null}
       </div>
     </article>
   )

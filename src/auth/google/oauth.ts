@@ -40,6 +40,7 @@ export type GoogleAuthRequest = {
 
 /** What we remember between the authorize redirect and the callback. */
 export type GoogleAuthState = {
+  returnTo?: string
   state: string
   verifier: string
 }
@@ -80,11 +81,15 @@ export const parseAuthState = (raw: string | null | undefined): GoogleAuthState 
     const parsed: unknown = JSON.parse(Buffer.from(payload, 'base64url').toString('utf8'))
     if (!parsed || typeof parsed !== 'object') return null
 
-    const { state, verifier } = parsed as Record<string, unknown>
+    const { returnTo, state, verifier } = parsed as Record<string, unknown>
     if (typeof state !== 'string' || state.length === 0) return null
     if (typeof verifier !== 'string' || verifier.length === 0) return null
 
-    return { state, verifier }
+    return {
+      ...(typeof returnTo === 'string' && returnTo.length > 0 ? { returnTo } : {}),
+      state,
+      verifier,
+    }
   } catch {
     return null
   }

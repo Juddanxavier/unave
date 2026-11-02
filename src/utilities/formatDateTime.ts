@@ -1,20 +1,28 @@
+/**
+ * A date written for a reader rather than a database: `1 November 2026`.
+ *
+ * The old `MM/DD/YYYY` shape was ambiguous, since `11/01/2026` reads as both a
+ * November date and a January one depending on where the reader lives. The
+ * byline on a blog post is the only caller, so the date alone is the whole
+ * output.
+ */
+const MONTHS = [
+  'January',
+  'February',
+  'March',
+  'April',
+  'May',
+  'June',
+  'July',
+  'August',
+  'September',
+  'October',
+  'November',
+  'December',
+]
+
 export const formatDateTime = (timestamp: string): string => {
-  const now = new Date()
-  let date = now
-  if (timestamp) date = new Date(timestamp)
-  const months = date.getMonth()
-  const days = date.getDate()
-  // const hours = date.getHours();
-  // const minutes = date.getMinutes();
-  // const seconds = date.getSeconds();
+  const date = timestamp ? new Date(timestamp) : new Date()
 
-  const MM = months + 1 < 10 ? `0${months + 1}` : months + 1
-  const DD = days < 10 ? `0${days}` : days
-  const YYYY = date.getFullYear()
-  // const AMPM = hours < 12 ? 'AM' : 'PM';
-  // const HH = hours > 12 ? hours - 12 : hours;
-  // const MinMin = (minutes < 10) ? `0${minutes}` : minutes;
-  // const SS = (seconds < 10) ? `0${seconds}` : seconds;
-
-  return `${MM}/${DD}/${YYYY}`
+  return `${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`
 }

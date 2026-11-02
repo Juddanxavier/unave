@@ -106,6 +106,19 @@ export const checkEnquiryIpLimit = (
     ? { limited: false }
     : consumeRateLimit('enquiry-ip', ip, ENQUIRY_IP_LIMIT, ENQUIRY_IP_WINDOW_MS, now)
 
+/**
+ * Order creation. The same shape as the enquiry limit, and for the same reason:
+ * an attempt writes rows and talks to a paid gateway. Five an hour from one
+ * address is generous for a person who is retrying a payment.
+ */
+export const ORDER_IP_LIMIT = 5
+export const ORDER_IP_WINDOW_MS = HOUR
+
+export const checkOrderIpLimit = (ip: string | null, now: number = Date.now()): RateLimitResult =>
+  ip === null
+    ? { limited: false }
+    : consumeRateLimit('order-ip', ip, ORDER_IP_LIMIT, ORDER_IP_WINDOW_MS, now)
+
 type HeaderLike = { get: (name: string) => string | null | undefined }
 
 /**

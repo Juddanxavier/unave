@@ -387,6 +387,45 @@
   }
 }
 
+/* The navbar floats over the band that opens a page, so it has no fill of its own
+   until the page scrolls (design.md §6.2). HeaderClient keeps --navbar-height in
+   step with the real bar; this value is what the first paint and a no-JS visit use. */
+:root {
+  --navbar-height: 4.5rem;
+}
+
+.site-header:not([data-scrolled='true']) {
+  background-color: transparent;
+  border-bottom-color: transparent;
+}
+
+/* A page whose first band is a photograph or a green field marks it
+   `.opening-band`. The band runs up behind the navbar, so the navbar's words sit on
+   the band itself and not on a cream bar. It moves up by the bar's height and gives
+   that height back as padding, so the words inside it do not move. */
+.opening-band {
+  margin-top: calc(var(--navbar-height) * -1);
+  padding-top: calc(3.5rem + var(--navbar-height));
+}
+
+@media (width >= 48rem) {
+  .opening-band {
+    padding-top: calc(5rem + var(--navbar-height));
+  }
+
+  /* The home hero opens taller than the content bands. */
+  .opening-band-tall {
+    padding-top: calc(7rem + var(--navbar-height));
+  }
+}
+
+/* Over that band the words turn cream and gold, the colours the solid green bar
+   uses, because the band behind them is dark. */
+body:has(.opening-band) .site-header:not([data-scrolled='true']) {
+  --primary: var(--gold-400);
+  color: var(--cream);
+}
+
 /* Scrolled header: solid green bar with a gold logo and gold links (design.md §6.2) */
 .site-header[data-scrolled='true'] {
   --primary: var(--gold-400);

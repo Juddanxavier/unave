@@ -8,7 +8,9 @@ import { getPayload } from 'payload'
 import React from 'react'
 
 import { cn } from '@/utilities/ui'
+import { formatPaise } from '@/utilities/money'
 import { getSignedInCustomer } from '@/utilities/customerSessionServer'
+import type { Order } from '@/payload-types'
 
 import { ProfileForm } from './ProfileForm'
 import {
@@ -33,6 +35,13 @@ import {
   ACCOUNT_TITLE,
   accountGreeting,
 } from './copy'
+import {
+  ACCOUNT_ORDERS_EMPTY,
+  ACCOUNT_ORDERS_HEADING,
+  ACCOUNT_ORDERS_INTRO,
+  ACCOUNT_ORDER_STATUS_PAID,
+  ORDER_PAYMENT_ID_LABEL,
+} from '../order-placed/copy'
 
 export const metadata: Metadata = {
   description: ACCOUNT_INTRO,
@@ -123,6 +132,17 @@ export default async function AccountPage() {
   const memberSince = formatDate(profile?.createdAt) ?? ACCOUNT_NOT_GIVEN
   const canSignInWithPassword = Boolean(profile?.hasPassword)
 
+  // The customer's own orders, newest first (spec 0007, AC-8). Read with the
+  // session's id, never a client supplied one.
+  const orders = await payload.find({
+    collection: 'orders',
+    depth: 0,
+    limit: 20,
+    overrideAccess: true,
+    sort: '-createdAt',
+    where: { customer: { equals: customer.id } },
+  })
+
   return (
     <div className="container max-w-5xl py-16 sm:py-20">
       <header className="flex flex-col gap-2">
@@ -155,6 +175,63 @@ export default async function AccountPage() {
               <p className="text-ink-600 mt-6 text-sm leading-6">{ACCOUNT_SET_PASSWORD_HINT}</p>
             ) : null}
           </Card>
+
+          <section aria-labelledby="account-orders-heading">
+            <Card className="bg-white">
+              <h2 className="text-h3" id="account-orders-heading">
+                {ACCOUNT_ORDERS_HEADING}
+              </h2>
+              <p className="text-ink-600 mt-2 text-sm leading-6">{ACCOUNT_ORDERS_INTRO}</p>
+
+              {orders.docs.length === 0 ? (
+                <p className="text-ink-600 mt-6 text-sm leading-6">{ACCOUNT_ORDERS_EMPTY}</p>
+              ) : (
+                <ul className="border-line mt-6 divide-y divide-line border-t">
+                  {orders.docs.map((order: Order) => {
+                    const startsOn = formatDate(
+                      typeof order.startsOn === 'string' ? order.startsOn : null,
+                    )
+
+                    return (
+                      <li className="py-5 first:pt-5" key={String(order.id)}>
+                        <div className="flex flex-wrap items-baseline justify-between gap-3">
+                          <Link
+                            className="hover:opacity-75 font-bold transition-opacity focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none motion-reduce:transition-none"
+                            href={`/order-placed/${order.id}`}
+                          >
+                            {formatPaise(Number(order.total))}
+                          </Link>
+
+                          <span
+                            className={cn(
+                              'rounded-pill px-3 py-1 text-xs font-bold tracking-wide uppercase',
+                              'bg-green-100 text-green-700',
+                            )}
+                          >
+                            {ACCOUNT_ORDER_STATUS_PAID}
+                          </span>
+                        </div>
+
+                        <p className="text-ink-600 mt-1 text-sm">
+                          {(order.items ?? [])
+                            .map(
+                              (item) =>
+                                `${item.planTitle}, ${item.durationLabel} (${Number(item.days)} days)`,
+                            )
+                            .join(' + ')}
+                        </p>
+
+                        <p className="text-ink-600 mt-1 text-sm">
+                          {ORDER_PAYMENT_ID_LABEL}: {order.gatewayPaymentId ?? ACCOUNT_NOT_GIVEN}
+                          {startsOn ? ` · Deliveries begin ${startsOn}` : ''}
+                        </p>
+                      </li>
+                    )
+                  })}
+                </ul>
+              )}
+            </Card>
+          </section>
 
           <section aria-labelledby="account-delivery-heading">
             <Card className="bg-white">

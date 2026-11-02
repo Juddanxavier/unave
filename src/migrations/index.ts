@@ -7,6 +7,10 @@ import * as migration_20261031_120000_customer_has_password from './20261031_120
 import * as migration_20261031_130000_customer_profile from './20261031_130000_customer_profile';
 import * as migration_20261031_150000_enquiries from './20261031_150000_enquiries';
 import * as migration_20261031_180000_remove_plans_subscriptions from './20261031_180000_remove_plans_subscriptions';
+import * as migration_20261101_120000_create_plans_and_orders from './20261101_120000_create_plans_and_orders';
+import * as migration_20261101_130000_plans_chrome from './20261101_130000_plans_chrome';
+import * as migration_20261101_140000_plan_points from './20261101_140000_plan_points';
+import * as migration_20261101_150000_paid_orders_only from './20261101_150000_paid_orders_only';
 
 
 export const migrations = [
@@ -54,5 +58,25 @@ export const migrations = [
     up: migration_20261031_180000_remove_plans_subscriptions.up,
     down: migration_20261031_180000_remove_plans_subscriptions.down,
     name: '20261031_180000_remove_plans_subscriptions',
+  },
+  {
+    up: migration_20261101_120000_create_plans_and_orders.up,
+    down: migration_20261101_120000_create_plans_and_orders.down,
+    name: '20261101_120000_create_plans_and_orders',
+  },
+  {
+    up: migration_20261101_130000_plans_chrome.up,
+    down: migration_20261101_130000_plans_chrome.down,
+    name: '20261101_130000_plans_chrome',
+  },
+  {
+    up: migration_20261101_140000_plan_points.up,
+    down: migration_20261101_140000_plan_points.down,
+    name: '20261101_140000_plan_points',
+  },
+  {
+    up: migration_20261101_150000_paid_orders_only.up,
+    down: migration_20261101_150000_paid_orders_only.down,
+    name: '20261101_150000_paid_orders_only',
   },
 ];

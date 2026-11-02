@@ -5,24 +5,28 @@ import { BENEFITS, BENEFITS_HEADING } from '@/utilities/homeCopy'
 import { Section } from './Section'
 
 /**
- * Six short reasons, laid out as a three-column grid rather than the numbered
- * vertical list a competitor would use, so it reads as our page and not a copy.
- * The numbers are a reading aid, so they stay out of the accessibility tree.
+ * Six short reasons, one card each on the tinted band (design.md §6.7). The numeral
+ * sits in a gold chip as a reading aid, so it stays out of the accessibility tree,
+ * while the list itself carries the order for anyone using a screen reader.
  */
 export const Benefits: React.FC = () => (
-  <Section tone="white">
+  <Section tone="tint">
     <h2 className="text-h2">{BENEFITS_HEADING}</h2>
 
-    <div className="mt-10 grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:grid-cols-3">
+    <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">
       {BENEFITS.map((benefit, index) => (
-        <div key={benefit.title}>
-          <p aria-hidden="true" className="text-h3 text-gold-600 font-bold">
-            {String(index + 1).padStart(2, '0')}
-          </p>
-          <h3 className="text-h3 mt-2">{benefit.title}</h3>
-          <p className="text-body text-ink-600 mt-2 max-w-[45ch]">{benefit.body}</p>
-        </div>
+        <li
+          className="bg-card border-line rounded-md border p-6 shadow-sm"
+          key={benefit.title}
+        >
+          <span className="bg-gold-100 text-gold-600 text-button grid size-11 place-items-center rounded-full font-bold tabular-nums">
+            <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          </span>
+
+          <h3 className="text-h3 mt-4">{benefit.title}</h3>
+          <p className="text-body text-ink-600 mt-2">{benefit.body}</p>
+        </li>
       ))}
-    </div>
+    </ol>
   </Section>
 )

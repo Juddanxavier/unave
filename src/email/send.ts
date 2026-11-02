@@ -243,6 +243,37 @@ export const sendCustomerAuthMail = async (
   return deliver(payload, environment, base)
 }
 
+/**
+ * Order mail, under its own key (spec 0007): the customer confirmation and the
+ * kitchen notice both log here, so a money message is never hidden under the
+ * generic `system` key.
+ */
+export const sendOrderMail = async (
+  payload: Payload,
+  input: SystemMailInput,
+): Promise<MailResult> => {
+  const environment = readMailEnvironment()
+  const recipient = normalizeRecipientText(toRecipientText(input.to))
+
+  const base: DeliveryInput = {
+    bcc: input.bcc,
+    cc: input.cc,
+    html: input.html ?? '',
+    replyTo: input.replyTo,
+    subject: stripHeaderBreaks(input.subject) || 'Your UNAVE order',
+    templateKey: 'order',
+    text: input.text ?? '',
+    to: recipient,
+    triggeredBy: input.triggeredBy,
+  }
+
+  return deliver(payload, environment, {
+    ...base,
+    fromName: environment.fromName,
+    recipientName: undefined,
+  })
+}
+
 export const sendSystemMail = async (
   payload: Payload,
   input: SystemMailInput,

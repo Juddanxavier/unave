@@ -19,10 +19,11 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 1 | Transactional email | Foundation | done |
 | 2 | About and contact | Slice 1 | in-progress |
 | 3 | Customer accounts | Slice 2 | in-progress |
+| 4 | Plans and payments | Slice 3 | in-progress |
 
 ## Removed
 
-**Plans, subscriptions, cart, checkout and Razorpay. Removed on 2026-10-31, after they were built.** The site stopped selling plans: the `plans`, `subscriptions` and `payments` collections, the `/plans` and `/cart` routes, the order-placed page, the Razorpay client, webhook and migration, and the plan emails (cancellation) were deleted, and the database tables and their rows were dropped by `src/migrations/20261031_180000_remove_plans_subscriptions.ts`. Specs 0001, 0003, 0004 and 0007 were deleted rather than kept as history. The kitchen now takes orders by message (WhatsApp, phone, email, the contact form). What survives of that work: the `customers` collection and the account screens, now carrying saved delivery details and a food preference, and the transactional email plumbing.
+**Plans, subscriptions, cart, checkout and Razorpay. Removed on 2026-10-31, after they were built.** The site stopped selling plans: the `plans`, `subscriptions` and `payments` collections, the `/plans` and `/cart` routes, the order-placed page, the Razorpay client, webhook and migration, and the plan emails (cancellation) were deleted, and the database tables and their rows were dropped by `src/migrations/20261031_180000_remove_plans_subscriptions.ts`. Specs 0001, 0003, 0004 and 0007 were deleted rather than kept as history. The kitchen now takes orders by message (WhatsApp, phone, email, the contact form). What survives of that work: the `customers` collection and the account screens, now carrying saved delivery details and a food preference, and the transactional email plumbing. The same day, the kitchen decided to sell through the site again: feature 4 below rebuilds this, built fresh rather than restored from git history.
 
 ## Existing
 
@@ -101,11 +102,31 @@ A customer signs in with email and password, or with Google, and keeps their del
 - [ ] Test it: `/test customer accounts`
 Spec [0005](../specs/0005-customer-accounts/index.md) · code in `src/collections/Customers/`, `src/auth/`, `src/utilities/customerSession.ts`, `src/app/(frontend)/sign-in/`, `src/app/(frontend)/sign-up/`, `src/app/(frontend)/forgot-password/`, `src/app/(frontend)/reset-password/`, `src/app/(frontend)/account/`, `src/components/CustomerAuth/`, `src/Header/AccountLinks.tsx`, `src/access/`, `src/migrations/`
 
+## Slice 3: Ordering
+
+### 4. Plans and payments · in-progress (building) · GA
+The kitchen sells plans through the site again, built fresh rather than restored from the removed build. A plan is a duration paid upfront, say a week or a month of meals, collected through an online payment gateway (Razorpay is the named pick; the spec owns that decision). A plan card sends the buyer straight to checkout with that plan and duration, one plan per order, checkout requires sign in, and staff manage plans and see orders and payments in the Payload admin.
+**Supersedes:** the "an account only saves details" promise in `design.md`: buying now requires an account, so that contract changes at spec time, while browsing and messaging stay open to everyone.
+**Done when:** a visitor can browse plans and start a purchase without an account, sign in at checkout, pay once for the plan they chose, and the kitchen sees the order and can edit plans, prices and availability in the admin; the chrome copy that says orders come by message is updated in the CMS.
+- [x] Design it (spec): `/architect plans and payments`
+- [ ] Build it: `/develop plans and payments`
+   - [x] Collections, migration and access rules (AC-4, AC-9, AC-10)
+   - [x] The thin thread in test mode: plan cards, checkout, the Razorpay popup, the return check and the webhook (AC-2, AC-3, AC-4, AC-5, AC-6, AC-8)
+   - [x] Order mail and the refusals hardening (AC-4, AC-7, AC-8, AC-12)
+   - [x] Full pages, the chrome migration and the design contract amendment (AC-1, AC-9, AC-11, AC-12)
+   - [x] Int and e2e tests and the typecheck gate (AC-1 through AC-12)
+   - [x] Cart removal revision: direct buy path, single plan orders, the cart surface removed, tests rebuilt (AC-1 through AC-11)
+- [ ] Verify it: `/check verify plans and payments`
+- [ ] Test it: `/test plans and payments`
+- [ ] Review it (fresh model): `/check review plans and payments`
+- [ ] Document it: `/document plans and payments`
+Spec [0007](../specs/0007-plans-cart-and-payments/index.md) · code in `src/collections/Plans/`, `src/collections/Orders/`, `src/utilities/razorpay.ts`, `src/components/Store/`, `src/app/(frontend)/(site)/plans`, `src/app/(frontend)/(site)/checkout`, `src/app/(frontend)/(site)/order-placed/`, `src/app/(frontend)/api/razorpay/`, `src/email/templates/Order.tsx`, `src/migrations/`
+
 ## Deferred
 
 Out of scope for this build pass, kept so the plan stays honest.
 
-- **Ordering and payments**: a catalogue, a cart, a gateway, and the account features that depend on them · removed on 2026-10-31; revisit only if the kitchen decides to sell through the site again
+- **Fulfilment states and auto renewal**: order states with staff actions such as cancellation and refund notes, and auto renewing subscriptions · both cut from feature 4's first pass
 - **A weekly menu page**: the header and footer promise a menu that has no page yet
 - **SMS and WhatsApp**: notification channel beyond email · needs a decision
 - **Email delivery events**: bounce and complaint webhooks, plus alerts on repeated send failure · from spec 0002 · needs a decision

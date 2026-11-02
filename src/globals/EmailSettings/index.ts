@@ -17,10 +17,46 @@ export const EmailSettings: GlobalConfig = {
   },
   admin: {
     description:
-      'Sender details for account mail. The sender address and reply address come from the server environment.',
+      'Sender details for account mail, and the copy for order mail. The sender address and reply address come from the server environment.',
     group: 'Email',
   },
   fields: [
+    {
+      name: 'orderCopy',
+      type: 'group',
+      label: 'Order emails',
+      admin: {
+        description:
+          'What the kitchen and the customer are told about a paid order. Leave a field blank to use the built in copy.',
+      },
+      fields: [
+        {
+          name: 'confirmationSubject',
+          label: 'Customer confirmation subject',
+          type: 'text',
+        },
+        {
+          name: 'confirmationIntro',
+          label: 'Customer confirmation opening line',
+          type: 'textarea',
+        },
+        {
+          name: 'confirmationOutro',
+          label: 'Customer confirmation closing line',
+          type: 'textarea',
+        },
+        {
+          name: 'kitchenSubject',
+          label: 'Kitchen notice subject',
+          type: 'text',
+        },
+        {
+          name: 'kitchenIntro',
+          label: 'Kitchen notice opening line',
+          type: 'textarea',
+        },
+      ],
+    },
     {
       name: 'senderName',
       type: 'text',

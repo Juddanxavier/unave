@@ -12,8 +12,10 @@ import { Testimonials } from '@/components/home/Testimonials'
 import { TrustStrip } from '@/components/home/TrustStrip'
 import { Welcome } from '@/components/home/Welcome'
 import { FAQ, HOME_DESCRIPTION, HOME_TITLE } from '@/utilities/homeCopy'
+import { getCachedGlobal } from '@/utilities/getGlobals'
 import { getServerSideURL } from '@/utilities/getURL'
 import { mergeOpenGraph } from '@/utilities/mergeOpenGraph'
+import type { Footer } from '@/payload-types'
 
 export const metadata: Metadata = {
   alternates: {
@@ -52,7 +54,10 @@ const structuredData = [
   },
 ]
 
-export default function HomePage() {
+export default async function HomePage() {
+  const footer = (await getCachedGlobal('footer', 1)()) as Footer | null
+  const whatsapp = footer?.contact?.whatsapp ?? null
+
   return (
     <main>
       <script
@@ -62,7 +67,7 @@ export default function HomePage() {
         type="application/ld+json"
       />
 
-      <Hero />
+      <Hero whatsapp={whatsapp} />
       <TrustStrip />
       <Welcome />
       <Benefits />
@@ -71,7 +76,7 @@ export default function HomePage() {
       <Gallery />
       <Testimonials />
       <Faq />
-      <FinalCta />
+      <FinalCta whatsapp={whatsapp} />
     </main>
   )
 }

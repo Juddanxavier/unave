@@ -9,12 +9,15 @@ import {
   HOME_HREF_FAQ,
   IMAGES,
 } from '@/utilities/homeCopy'
+import { WHATSAPP_FALLBACK_LABEL, whatsappHref } from '@/utilities/whatsapp'
 
 import { Cta } from '@/components/Cta'
+import { WhatsAppIcon } from '@/components/WhatsAppIcon'
 import { Section } from './Section'
 import { Swoosh } from '@/components/Swoosh'
 
-export const FinalCta: React.FC = () => (
+/** The closing band. Its primary action opens WhatsApp, like the hero's. */
+export const FinalCta: React.FC<{ whatsapp?: null | string }> = ({ whatsapp }) => (
   <Section
     className="relative overflow-hidden text-center"
     image={{ src: IMAGES.ctaBg }}
@@ -28,9 +31,21 @@ export const FinalCta: React.FC = () => (
       <p className="text-lead text-cream/85 mt-4">{FINAL_BODY}</p>
 
       <div className="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
-        <Cta href={HOME_HREF_CONTACT} variant="onDark">
-          {FINAL_PRIMARY}
-        </Cta>
+        {whatsapp ? (
+          <Cta
+            href={whatsappHref(whatsapp)}
+            rel="noopener noreferrer"
+            target="_blank"
+            variant="onDark"
+          >
+            <WhatsAppIcon className="size-4" />
+            {FINAL_PRIMARY}
+          </Cta>
+        ) : (
+          <Cta href={HOME_HREF_CONTACT} variant="onDark">
+            {WHATSAPP_FALLBACK_LABEL}
+          </Cta>
+        )}
         <Cta href={HOME_HREF_FAQ} variant="onDarkSecondary">
           {FINAL_SECONDARY}
         </Cta>

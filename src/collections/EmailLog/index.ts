@@ -71,6 +71,7 @@ export const EmailLog: CollectionConfig = {
       type: 'select',
       options: [
         { label: 'Customer account', value: 'customerAuth' },
+        { label: 'Order', value: 'order' },
         { label: 'System', value: 'system' },
       ],
       required: true,

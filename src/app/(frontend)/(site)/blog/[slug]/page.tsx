@@ -1,19 +1,20 @@
 import type { Metadata } from 'next'
 
+import Image from 'next/image'
 import { RelatedPosts } from '@/blocks/RelatedPosts/Component'
+import { BlogPostHeader } from '@/components/BlogPostHeader'
+import { LivePreviewListener } from '@/components/LivePreviewListener'
 import { PayloadRedirects } from '@/components/PayloadRedirects'
+import RichText from '@/components/RichText'
 import configPromise from '@payload-config'
 import { getPayload } from 'payload'
 import { draftMode } from 'next/headers'
 import React, { cache } from 'react'
-import RichText from '@/components/RichText'
 
-import type { Post } from '@/payload-types'
-
-import { PostHero } from '@/heros/PostHero'
 import { generateMeta } from '@/utilities/generateMeta'
+import { getMediaUrl } from '@/utilities/getMediaUrl'
+import { cn } from '@/utilities/ui'
 import PageClient from './page.client'
-import { LivePreviewListener } from '@/components/LivePreviewListener'
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -46,13 +47,19 @@ export default async function Post({ params: paramsPromise }: Args) {
   const { slug = '' } = await paramsPromise
   // Decode to support slugs with special characters
   const decodedSlug = decodeURIComponent(slug)
-  const url = '/posts/' + decodedSlug
+  const url = '/blog/' + decodedSlug
   const post = await queryPostBySlug({ slug: decodedSlug })
 
   if (!post) return <PayloadRedirects url={url} />
 
+  /* The post's own photograph again, this time as the article's picture: the band
+     above carries it behind the title under a scrim, so the reader sees it clearly
+     here before the words start (design.md §10.4). */
+  const media = post.heroImage && typeof post.heroImage === 'object' ? post.heroImage : null
+  const image = media?.url ? getMediaUrl(media.url, media.updatedAt) : null
+
   return (
-    <article className="pt-16 pb-16">
+    <article>
       <PageClient />
 
       {/* Allows redirects for valid pages too */}
@@ -60,18 +67,36 @@ export default async function Post({ params: paramsPromise }: Args) {
 
       {draft && <LivePreviewListener />}
 
-      <PostHero post={post} />
+      <BlogPostHeader post={post} />
 
-      <div className="flex flex-col items-center gap-4 pt-8">
-        <div className="container">
-          <RichText className="max-w-[48rem] mx-auto" data={post.content} enableGutter={false} />
-          {post.relatedPosts && post.relatedPosts.length > 0 && (
-            <RelatedPosts
-              className="mt-12 max-w-[52rem] lg:grid lg:grid-cols-subgrid col-start-1 col-span-3 grid-rows-[2fr]"
-              docs={post.relatedPosts.filter((post) => typeof post === 'object')}
-            />
-          )}
-        </div>
+      <div className="container py-14 md:py-24">
+        {image ? (
+          <figure className="mx-auto max-w-[48rem]">
+            <div className="relative aspect-[3/2] overflow-hidden rounded-md">
+              <Image
+                alt={media?.alt ?? ''}
+                className="object-cover"
+                fill
+                quality={75}
+                sizes="(min-width: 48rem) 48rem, 100vw"
+                src={image}
+              />
+            </div>
+          </figure>
+        ) : null}
+
+        <RichText
+          className={cn('mx-auto max-w-[48rem]', image && 'mt-10')}
+          data={post.content}
+          enableGutter={false}
+        />
+
+        {post.relatedPosts && post.relatedPosts.length > 0 && (
+          <RelatedPosts
+            className="mt-16"
+            docs={post.relatedPosts.filter((post) => typeof post === 'object')}
+          />
+        )}
       </div>
     </article>
   )

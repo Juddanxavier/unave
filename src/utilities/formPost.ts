@@ -48,6 +48,24 @@ export const readFormFields = async (req: PayloadRequest): Promise<Record<string
 }
 
 /**
+ * The only redirect targets a customer controlled value may become.
+ *
+ * A path like `/checkout` sent through a form or a query string must never
+ * become a way off the site: it has to start with one slash, must not start
+ * with two (a protocol relative address is still off site), and must not carry
+ * a scheme. Anything else reads as "no preference".
+ */
+export const safeReturnPath = (value: unknown): string | null => {
+  if (typeof value !== 'string') return null
+
+  const path = value.trim().slice(0, 200)
+
+  if (!path.startsWith('/') || path.startsWith('//') || path.includes('\\')) return null
+
+  return path
+}
+
+/**
  * Cookie free CSRF defence for the public forms.
  *
  * The session cookie is `SameSite=Lax`, so it is not attached to a cross site POST,

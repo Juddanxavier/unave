@@ -9,7 +9,9 @@ import { Customers } from './collections/Customers'
 import { EmailLog } from './collections/EmailLog'
 import { Enquiries } from './collections/Enquiries'
 import { Media } from './collections/Media'
+import { Orders } from './collections/Orders'
 import { Pages } from './collections/Pages'
+import { Plans } from './collections/Plans'
 import { Posts } from './collections/Posts'
 import { Users } from './collections/Users'
 import { unaveEmailAdapter } from './email/adapter'
@@ -39,6 +41,7 @@ export default buildConfig({
         Logo: '@/components/AdminLogo',
       },
     },
+    theme: 'dark',
     meta: {
       description: 'Unave admin, content and enquiries',
       icons: [
@@ -93,6 +96,8 @@ export default buildConfig({
     Customers,
     Enquiries,
     EmailLog,
+    Orders,
+    Plans,
   ],
   cors: [getServerSideURL()].filter(Boolean),
   email: unaveEmailAdapter,

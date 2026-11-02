@@ -3,6 +3,8 @@
  * page and any future reuse cannot drift, like homeCopy and contactCopy.
  */
 
+import { WHATSAPP_CTA_LABEL } from '@/utilities/whatsapp'
+
 export const ABOUT_PAGE_TITLE = 'About us'
 export const ABOUT_PAGE_DESCRIPTION =
   'Who cooks UNAVE meals, how the kitchen works, and what we promise and do not promise.'
@@ -12,7 +14,7 @@ export const ABOUT_HERO_HEADLINE = 'Food from a kitchen,'
 export const ABOUT_HERO_HEADLINE_ACCENT = 'not a factory'
 export const ABOUT_HERO_SUB =
   'UNAVE cooks the way a careful home does: fresh every morning, honest about what goes in, and delivered when we say it will be.'
-export const ABOUT_HERO_CTA = 'Message the kitchen'
+export const ABOUT_HERO_CTA = WHATSAPP_CTA_LABEL
 
 /** Photography (design.md §8): the band photos are decorative; the story photo is content. */
 export const ABOUT_IMAGES = {
@@ -75,5 +77,5 @@ export const ABOUT_NOTICE_BODY =
 export const ABOUT_FINAL_HEADING = 'Come and eat with us'
 export const ABOUT_FINAL_BODY =
   'Tell us what you need, or simply ask us a question. Both are welcome, and neither needs an account.'
-export const ABOUT_FINAL_PRIMARY = 'Message the kitchen'
+export const ABOUT_FINAL_PRIMARY = WHATSAPP_CTA_LABEL
 export const ABOUT_FINAL_SECONDARY = 'Message us'

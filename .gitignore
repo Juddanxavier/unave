@@ -23,3 +23,7 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Dev server log
+tmp-dev.log
+tmp-*.png

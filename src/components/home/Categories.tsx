@@ -76,9 +76,9 @@ export const Categories: React.FC = () => (
     </div>
 
     {/* The disclaimer that has to sit near the dietary claim (design.md §6.11, §11) */}
-    <aside className="bg-gold-100 border-gold-500 mt-10 max-w-[75ch] rounded-md border-l-4 p-5 sm:p-6">
-      <h3 className="text-h3 text-ink-900">{NOTICE_TITLE}</h3>
-      <p className="text-body text-ink-900 mt-2">{NOTICE_BODY}</p>
+    <aside className="bg-gold-100 border-gold-500 mt-10 rounded-md border-l-4 p-5 sm:p-6">
+      <h3 className="text-ink-900 text-lg leading-snug font-bold">{NOTICE_TITLE}</h3>
+      <p className="text-ink-900 mt-2 text-base leading-7">{NOTICE_BODY}</p>
     </aside>
   </Section>
 )

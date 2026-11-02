@@ -17,7 +17,7 @@ Design guide for the UNAVE Cloud Kitchen website. Derived from the brand logo (d
 1. **Calm over clever.** Generous whitespace, few elements per section. The brand sells relief from daily planning.
 2. **Fresh and natural.** Green dominates, gold accents. Photography of real, simply cooked food.
 3. **Honest and clear.** What we cook, where we deliver, terms and disclaimers are visible, never hidden. Design should make the "fine print" readable.
-4. **Easy to act.** One primary action per section: *Message the kitchen*. Ordering needs no account and no form-fighting — a message is enough. Signing in is optional and only ever buys convenience (a saved profile), never access.
+4. **Easy to act.** One primary action per section: *Message us on WhatsApp*. Browsing the plans and sending a message need no account and no form-fighting. Buying a plan is the one thing that asks for an account, and only at checkout, so the kitchen knows who ordered and where to deliver. Signing in otherwise buys convenience only (a saved profile, the order list), never access.
 5. **Soft, rounded, friendly.** Echoes the rounded letterforms and curved swoosh of the logo.
 
 ---
@@ -194,14 +194,15 @@ Load via Google Fonts with `display=swap`. Include real fallback stacks.
 - Pill shape, 52px tall (44px min on mobile), padding 0 28px.
 - Focus ring: 3px `--gold-400` with 2px offset (on light: 3px `--green-500`).
 - One primary button per section. Pair with one secondary.
-- **Standard CTA labels (from copy):** Message the kitchen, Message Us, Contact Us, Talk to Us, Ask Us a Question, How It Works, Common Questions.
+- **WhatsApp actions.** Every "message the kitchen" button opens WhatsApp through one helper, `whatsappHref` in `src/utilities/whatsapp.ts`, which reads the number from the footer global, sends digits only to `wa.me`, and prefills the opening line. The button carries the filled WhatsApp glyph (`WhatsAppIcon`, in `src/components/WhatsAppIcon`) and reads **Message us on WhatsApp**. When the footer holds no number yet, the button falls back to the contact page and reads **Message us**.
+- **Standard CTA labels (from copy):** Message us on WhatsApp, Message us, Contact us, Talk to us, Ask us a question, How it works, Common questions.
 
 ### 6.2 Header / Navigation
 
-- Sticky, cream background with 1px `--line` bottom border (turns solid green over the hero if desired).
+- Sticky, and transparent while the page sits at the top: the band that opens a page runs up behind it, so the bar has no fill of its own there and its words turn cream and gold over a dark band, or stay green over cream. Once the page scrolls it becomes a solid `--green-700` bar with a gold wordmark, gold links, cream text and a 1px `--green-800` bottom edge. A page that opens on a photograph or a green field marks that band `.opening-band` (`src/app/(frontend)/globals.css`), which pulls the band up behind the bar and hands the bar's own height back as padding, so nothing inside the band moves.
 - Above it, a slim `--green-900` announcement strip: gold headline, cream supporting line, underlined gold link. The whole strip is one link, and it pins together with the bar so the bar sits directly under it.
 - Left: horizontal logo. Center/right: the menu links from the **Site chrome** header global — today Home · About · Contact, six at most. **About** also sits in the footer's Explore column; the header and footer are Payload globals, so the live list is whatever they hold.
-- Right: primary pill button **Message the kitchen**, plus the account links: signed out, a quiet **Sign in** (icon only on the narrowest screens) and a **Sign up** beside it from the `sm` breakpoint up. Signed in, that control becomes an account menu — the customer's first name (or **Your account** when Payload holds no name) plus a chevron that turns when the menu is open, opening a small panel that names who is signed in and carries **Your account** and **Sign out**. These are code, never CMS copy, because they reflect session state; the primary pill stays the only primary action. Sign out is a quiet form post to `/api/customers/logout`, so it also works without JavaScript and revokes the session row.
+- Right: primary pill button from the header global (its label and link are CMS copy), plus the account links: signed out, a quiet **Sign in** (icon only on the narrowest screens) and a **Sign up** beside it from the `sm` breakpoint up. Signed in, that control becomes an account menu — the customer's first name (or **Your account** when Payload holds no name) plus a chevron that turns when the menu is open, opening a small panel that names who is signed in and carries **Your account** and **Sign out**. These are code, never CMS copy, because they reflect session state; the primary pill stays the only primary action. Sign out is a quiet form post to `/api/customers/logout`, so it also works without JavaScript and revokes the session row.
 - The menu is keyboard complete: ArrowDown/ArrowUp move between items, Home and End jump, Escape closes and returns focus to the trigger, Tab leaves, and a pointer down outside closes it.
 - Mobile: hamburger opens a full-height green drawer, gold links, large tap targets (56px). Keep the CTA pinned at the bottom. The account links repeat at the end of the drawer: **Sign in** and **Sign up** signed out, **Your account** and **Sign out** signed in, one 56px row each.
 - Add a floating **WhatsApp** button (bottom-right) for "send us a message and we'll help you choose".
@@ -236,7 +237,7 @@ Four steps: Tell us what you need → We plan the week → We cook and deliver �
 
 ### 6.7 "What makes us different" list
 
-- Six items, numbered 01–06 on the page: bold title plus a one-line body, check icons in gold circles. The copy lives in `src/utilities/homeCopy.ts` (`BENEFITS`).
+- Six reasons, numbered 01–06. The heading sits above the grid, then one card per reason on the tinted band (`bg-green-50`): white card, 16px radius, 1px `--line` border, `--shadow-sm`, three across on desktop, two on tablet, one on mobile. Inside, the numeral in a 44px gold chip (`--gold-100`, `--gold-600` numeral), the bold title, then the one-line body. The numeral is a reading aid and stays out of the accessibility tree; the list carries the order. The copy lives in `src/utilities/homeCopy.ts` (`BENEFITS`).
 
 ### 6.8 FAQ accordion
 
@@ -308,7 +309,7 @@ These screens are `noindex, nofollow` and are never cached.
 - Story: `Why we started UNAVE`, three short paragraphs on a cream band, with the morning-prep photograph beside them from `lg` up (rounded 16px, real alt text — it is content, not decoration; the hero band photos stay decorative with empty alts because the words carry the meaning). Because the story mentions cooking around diabetes, the gold notice block (§6.9, shared `Notice` component) sits directly below it.
 - Values: `What we stand for`, four icon cards on the tint band.
 - How we work: three numbered steps on white, ending on the promise that a person who cooks here answers.
-- Final CTA band: green, one primary (`Message the kitchen`) and one secondary (`Message us`).
+- Final CTA band: green, one primary (`Message us on WhatsApp`) and one secondary (`Message us`).
 
 **Contact (`/contact`)** — `force-dynamic` (it reads the query string for the form's answer), copy in `src/utilities/contactCopy.ts`:
 
@@ -319,6 +320,25 @@ These screens are `noindex, nofollow` and are never cached.
 - On `?sent=1` the form section is replaced by the confirmation state: `Thank you — we have it`, the reply promise, and the WhatsApp CTA again. On `?error=` the form renders one plain sentence (`contactError` maps the endpoint's codes), never a field-by-field wall.
 
 Enquiries are stored in the `enquiries` collection (staff read in the admin, one row per message, an `Answered` checkbox to triage) and the kitchen is emailed through `sendSystemMail` with the enquirer's address as reply-to. A failed or unconfigured mail never fails the enquiry.
+
+### 6.15 Store (plans, checkout, orders)
+
+Added with the plans and payments feature (spec 0007). Copy lives beside each page (`plansCopy.ts`, `checkout/copy.ts`, `order-placed/copy.ts`); money is always shown through the shared `formatPaise` paise formatter, never hand formatted. The store pages read live data on every request, so nothing in this section is ever cached.
+
+- **Plans (`/plans`)** — the deep green hero band with swoosh, gold-accented headline, and one primary pill (*Browse the plans*, anchored to the grid). The grid is white pricing cards (24px radius, 1px line, `shadow-sm`, lifting 4px into `shadow-md` on hover), and the card leads with the price rather than a photo: the plan title, its description, up to five check-marked points, then the chosen duration's per day price in Inter bold with a quiet *a day* beside it and the total in one line under it. Inter rather than Playfair here because Playfair's rupee glyph collides with the digits at display size. One native radio chip per duration follows, each carrying its label and total price, so every duration and price renders without JavaScript; the chosen chip fills `--gold-400` with `--green-900` text, the one gold-filled control allowed on a light card. Under the chips sits one full width **Buy now** pill, which submits the chosen duration to `/checkout` with the plan, then a secondary **Message us on WhatsApp** pill carrying the WhatsApp glyph and linking to the footer's WhatsApp number, so a card never dead ends. Buying is one plan at a time; there is no cart. A paused plan renders with a small gold **Paused** pill above the title, its durations in a quiet list with prices, no buy or message control, and one quiet line pointing to messaging; the gold notice block (§6.9) sits under the grid explaining what *paused* means. The plan photo stays in the admin but is not used on the shelf, because the price is what a customer compares. The empty state is one quiet card with a **Message us on WhatsApp** secondary action, never a dead end. A three-step *How a plan works* list sits on the tint band, and the closing band carries the final CTA.
+- **Checkout (`/checkout`)** — `noindex, nofollow`, signed in customers only; the guard carries the full plan link through sign in. Two columns from `lg`: the form (name, phone, address, city, state, pincode, food preference, optional note) prefilled from the saved profile but editable for this order alone, and a summary card listing the one plan, its duration and the **To pay** total. One primary action: **Pay for the order**, which opens the Razorpay popup. A link naming an unknown or paused plan, or a duration that left the menu, shows one plain sentence and a **Browse the plans** pill, never an empty form. Gateway messages appear as one plain line in the gold tone, never a red banner.
+- **Order placed (`/order-placed/[id]`)** — `noindex, nofollow`, owner only. The green check icon and *Your order is confirmed* lead, with one honest sentence about what happens next. The order card lists the snapshot plan and duration, the amount, a green **Paid** pill and the payment id as the receipt. Back to the account is a quiet link, *Browse the plans* the primary. An order row exists only once a payment is captured, so this page has no pending state.
+- **Account orders list** — a *Your orders* card in the account's main column, newest first. Each row: the amount, a green **Paid** pill, the plan and duration as one plain sentence, the payment id, and the delivery start date once the kitchen sets one. The row links to the order page.
+
+### 6.16 Admin panel (Payload)
+
+The admin is a staff tool rather than a customer surface, and it wears the brand without pretending to be the site. It is themed in one file, `src/app/(payload)/custom.scss`, by overriding Payload's own variables instead of rewriting its components:
+
+- **Colour** — Payload's neutral `--color-base-*` scale becomes the UNAVE warm greys, from cream white at `0` to green black at `1000`. Payload reverses that one scale for dark mode, so light and dark are branded by the same definition. Green carries `success`, gold carries `warning`, and errors stay a warm brick that reads on white and on deep green.
+- **Type** — Inter and Playfair Display load through `next/font` in `AdminFonts` (an `admin.components.providers` entry) and point Payload's `--font-body` and `--font-serif` at the site's two typefaces.
+- **Shape** — `--style-radius-s/m/l` are 6/10/16px, tighter than the site's pills, because the admin is a working tool.
+- **Brand moments** — sign in is the deep green band with a gold-edged card and the Playfair wordmark, the sidebar is green tinted with uppercase groups and a gold bar on the active item, and enabled primary buttons are green in light mode and gold in dark. The dashboard opens with a short UNAVE welcome and four desk links (Orders, Enquiries, Plans, Customers) rather than Payload's template instructions.
+- **Money** — staff read and type rupees. `RupeeField` (with `RupeeCell` for list columns) shows rupees and still stores paise, so the database and the gateway are never touched.
 
 ## 7. Iconography and Illustration
 
@@ -355,7 +375,7 @@ Enquiries are stored in the `enquiries` collection (staff read in the admin, one
 
 ### 10.1 Home
 
-1. Hero: "Good food, cooked in our own kitchen." + Message the kitchen / How It Works, with four icon chips under the buttons
+1. Hero: "Good food, cooked in our own kitchen." + Message us on WhatsApp / How It Works, with four icon chips under the buttons
 2. Trust strip (five claims: delivery, kitchen, FSSAI, home-style cooking, one focus)
 3. Welcome to UNAVE (two short paragraphs + kitchen photo)
 4. What makes us different (six numbered items)
@@ -364,7 +384,7 @@ Enquiries are stored in the `enquiries` collection (staff read in the admin, one
 7. From our kitchen (3 photos with captions)
 8. What customers say (3 quotes; placeholders until real, attributed words exist)
 9. Common questions (5 FAQs)
-10. Final CTA: Message the kitchen / Common Questions
+10. Final CTA: Message us on WhatsApp / Common Questions
 
 ### 10.2 Brand-source pages (Gym & Fitness, Healthy Food, Children)
 
@@ -373,6 +393,22 @@ The brand copy source describes three more pages. None of them is built. If one 
 ### 10.3 Supporting pages
 
 Sign in, Sign up, Forgot password, Reset password, Account, Contact, Policies (Delivery, Refund, Cancellation, Terms, Privacy). The header and footer still promise a menu page that does not exist yet (deferred in the scope).
+
+### 10.4 Blog
+
+1. Index (`/blog`) and its paged URLs: the shared green band hero, then the range line (*Showing 1 to 12 of 15 blog posts*), the Grid / List switch whose choice is a query string (`?view=list`) so it can be shared and survives without JavaScript, then the cards three-up, two-up, one-up, or one per row in list view, then the numbered pager: first, last, the current page and one either side, each a 44px target, the current page set as text rather than a link.
+2. Article (`/blog/[slug]`): the green band hero, carrying the post's categories as the eyebrow, the title in Playfair and the byline, on the post's own photograph under a green-900 scrim, and running up behind the transparent navbar. Below it the post's photograph again, this time as the article's picture, 3:2 at 48rem with real alt text, then the body and the related posts. A post with no photograph still gets the band, just without the picture.
+
+### 10.5 Our kitchen
+
+`/our-kitchen`, a static content page in the same voice as the about page, with every string in `src/utilities/ourKitchenCopy.ts`:
+
+1. The shared green band (§6.3): eyebrow "Inside our kitchen", a Playfair headline with the gold accent phrase, one lead line, then Message us on WhatsApp with Browse the plans as the quiet second action, and three small icon chips under them.
+2. What happens before your meal reaches you: five numbered steps in the How-it-works rail (§6.6), fresh produce in, washed and cut, cooked in batches, portioned and packed, checked and dispatched.
+3. Clean ingredients, careful preparation: three photographs at 4:3, each with real alt text and its caption set under the picture rather than on it.
+4. How we plan a plate: four points in two columns, each with a hairline `--line` rule above it, followed by the gold goals notice (§6.9), because the copy names diabetes, allergies and food preferences.
+5. Hygiene is part of every step: four icon cards in green-100 circles, the same shape as the about page values.
+6. The closing green band (§6.11): Message us on WhatsApp as the primary, Browse the plans as the secondary, on the swoosh.
 
 ---
 
@@ -503,7 +539,7 @@ theme: {
 - Show calorie-counting or "before/after" imagery.
 - Put gold text on light backgrounds.
 - Hide refund or delivery information.
-- Require an account, or imply that one is needed, to browse the site or to send a message. Signing in is optional and only ever saves a customer's details.
+- Require an account, or imply that one is needed, to browse the site or to send a message. Signing in is optional and only ever saves a customer's details. The one exception is paying for a plan: checkout asks the customer to sign in, and `/plans` and every page before it must never say or imply otherwise.
 - Use stock medical imagery for the diabetes-conscious category.
 
 ---

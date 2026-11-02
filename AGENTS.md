@@ -25,3 +25,7 @@ Hard constraints from it that override defaults:
 ## Site chrome
 
 The navbar and footer are Payload globals, not code: edit them in the admin under **Site chrome** (`/admin/globals/header`, `/admin/globals/footer`). The header owns the menu links, the primary pill and the WhatsApp button; the footer owns the tagline, link columns, contact details, disclaimer and copyright. `src/Header/*` and `src/Footer/*` only render what the CMS returns, so changing copy never means touching a component.
+
+## Admin panel
+
+The Payload admin is branded, never plain. `src/app/(payload)/custom.scss` overrides Payload's theme variables (`--color-base-*`, the success/warning/error scales, `--style-radius-*`) so one definition colours both light and dark. Restyle by overriding variables and adding unlayered rules against Payload's own class names, never by rewriting its components. The site typefaces load through `next/font` in `src/components/Admin/AdminFonts.tsx`, registered under `admin.components.providers`. `BeforeLogin`, `BeforeDashboard`, `AdminLogo` and `AdminIcon` carry the brand; money fields read and write rupees through `RupeeField` and `RupeeCell` while the database keeps paise.

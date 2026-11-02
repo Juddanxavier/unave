@@ -79,7 +79,7 @@ export default async function ContactPage({ searchParams }: { searchParams: Prom
   return (
     <main>
       <Section
-        className="overflow-hidden bg-green-900 md:py-20"
+        className="opening-band overflow-hidden bg-green-900 md:py-20"
         image={{ priority: true, src: CONTACT_IMAGES.hero }}
         overlay="bg-green-900/85"
         tone="green"

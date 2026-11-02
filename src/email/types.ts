@@ -1,4 +1,4 @@
-export const TEMPLATE_KEYS = ['system', 'customerAuth'] as const
+export const TEMPLATE_KEYS = ['system', 'customerAuth', 'order'] as const
 
 export type TemplateKey = (typeof TEMPLATE_KEYS)[number]
 

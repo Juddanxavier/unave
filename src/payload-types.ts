@@ -76,6 +76,8 @@ export interface Config {
     customers: Customer;
     enquiries: Enquiry;
     'email-log': EmailLog;
+    orders: Order;
+    plans: Plan;
     redirects: Redirect;
     forms: Form;
     'form-submissions': FormSubmission;
@@ -101,6 +103,8 @@ export interface Config {
     customers: CustomersSelect<false> | CustomersSelect<true>;
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
+    orders: OrdersSelect<false> | OrdersSelect<true>;
+    plans: PlansSelect<false> | PlansSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
     'form-submissions': FormSubmissionsSelect<false> | FormSubmissionsSelect<true>;
@@ -901,7 +905,7 @@ export interface EmailLog {
    */
   recipientMasked: string;
   recipientName?: string | null;
-  templateKey: 'customerAuth' | 'system';
+  templateKey: 'customerAuth' | 'order' | 'system';
   subject: string;
   status: 'sent' | 'failed' | 'skipped';
   transport: 'zeptomail' | 'smtp' | 'none';
@@ -914,6 +918,113 @@ export interface EmailLog {
    */
   triggeredBy?: (number | null) | User;
   sentAt?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * One row per paid order. A row is written only once the payment is captured, so an abandoned checkout leaves nothing behind. Amounts are shown in rupees.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders".
+ */
+export interface Order {
+  id: number;
+  customer: number | Customer;
+  /**
+   * What was bought, copied from the plan at purchase time. Plan edits never change these rows.
+   */
+  items: {
+    plan?: (number | null) | Plan;
+    planTitle?: string | null;
+    durationLabel?: string | null;
+    days?: number | null;
+    unitPrice?: number | null;
+    id?: string | null;
+  }[];
+  /**
+   * Where to deliver, as the customer entered it at checkout.
+   */
+  delivery?: {
+    name?: string | null;
+    phone?: string | null;
+    addressLine1?: string | null;
+    addressLine2?: string | null;
+    city?: string | null;
+    state?: string | null;
+    pincode?: string | null;
+    foodPreference?: string | null;
+    note?: string | null;
+  };
+  subtotal?: number | null;
+  total?: number | null;
+  gatewayOrderId?: string | null;
+  gatewayPaymentId?: string | null;
+  gatewaySignature?: string | null;
+  paidAt?: string | null;
+  /**
+   * When deliveries begin. The kitchen sets this, nobody else.
+   */
+  startsOn?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * The meal plans sold on the site. Turn `available` off to pause a plan without deleting it; prices are entered and shown in rupees.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plans".
+ */
+export interface Plan {
+  id: number;
+  title: string;
+  /**
+   * Lowercase, with dashes instead of spaces. Anchors the plan on /plans and travels in checkout links.
+   */
+  slug: string;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Up to five short lines shown on the plan card, under the description. For example "Delivered in an insulated tiffin".
+   */
+  points?:
+    | {
+        point: string;
+        id?: string | null;
+      }[]
+    | null;
+  image?: (number | null) | Media;
+  /**
+   * What a customer chooses: a label, how many days of meals it covers, and the price in rupees.
+   */
+  durations: {
+    /**
+     * Shown on the plan card and at checkout, for example "One week".
+     */
+    label: string;
+    days: number;
+    /**
+     * What the customer pays for this duration, in rupees. 499 means ₹499.
+     */
+    price: number;
+    id?: string | null;
+  }[];
+  /**
+   * Off means the plan shows a paused label and cannot be bought.
+   */
+  available?: boolean | null;
   updatedAt: string;
   createdAt: string;
 }
@@ -1147,6 +1258,14 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'email-log';
         value: number | EmailLog;
+      } | null)
+    | ({
+        relationTo: 'orders';
+        value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'plans';
+        value: number | Plan;
       } | null)
     | ({
         relationTo: 'redirects';
@@ -1601,6 +1720,72 @@ export interface EmailLogSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "orders_select".
+ */
+export interface OrdersSelect<T extends boolean = true> {
+  customer?: T;
+  items?:
+    | T
+    | {
+        plan?: T;
+        planTitle?: T;
+        durationLabel?: T;
+        days?: T;
+        unitPrice?: T;
+        id?: T;
+      };
+  delivery?:
+    | T
+    | {
+        name?: T;
+        phone?: T;
+        addressLine1?: T;
+        addressLine2?: T;
+        city?: T;
+        state?: T;
+        pincode?: T;
+        foodPreference?: T;
+        note?: T;
+      };
+  subtotal?: T;
+  total?: T;
+  gatewayOrderId?: T;
+  gatewayPaymentId?: T;
+  gatewaySignature?: T;
+  paidAt?: T;
+  startsOn?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "plans_select".
+ */
+export interface PlansSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  description?: T;
+  points?:
+    | T
+    | {
+        point?: T;
+        id?: T;
+      };
+  image?: T;
+  durations?:
+    | T
+    | {
+        label?: T;
+        days?: T;
+        price?: T;
+        id?: T;
+      };
+  available?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects_select".
  */
 export interface RedirectsSelect<T extends boolean = true> {
@@ -2015,13 +2200,23 @@ export interface Footer {
   createdAt?: string | null;
 }
 /**
- * Sender details for account mail. The sender address and reply address come from the server environment.
+ * Sender details for account mail, and the copy for order mail. The sender address and reply address come from the server environment.
  *
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "email-settings".
  */
 export interface EmailSetting {
   id: number;
+  /**
+   * What the kitchen and the customer are told about a paid order. Leave a field blank to use the built in copy.
+   */
+  orderCopy?: {
+    confirmationSubject?: string | null;
+    confirmationIntro?: string | null;
+    confirmationOutro?: string | null;
+    kitchenSubject?: string | null;
+    kitchenIntro?: string | null;
+  };
   /**
    * Overrides MAIL_FROM_NAME when set. Leave blank to use the environment name.
    */
@@ -2146,6 +2341,15 @@ export interface FooterSelect<T extends boolean = true> {
  * via the `definition` "email-settings_select".
  */
 export interface EmailSettingsSelect<T extends boolean = true> {
+  orderCopy?:
+    | T
+    | {
+        confirmationSubject?: T;
+        confirmationIntro?: T;
+        confirmationOutro?: T;
+        kitchenSubject?: T;
+        kitchenIntro?: T;
+      };
   senderName?: T;
   fromAddressDisplay?: T;
   replyToDisplay?: T;

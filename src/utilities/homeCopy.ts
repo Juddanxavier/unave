@@ -9,6 +9,8 @@
  * the business. Search this file for `—` before launch.
  */
 
+import { WHATSAPP_CTA_LABEL } from '@/utilities/whatsapp'
+
 export const HOME_TITLE = 'UNAVE | Healthy food, cooked in our own kitchen'
 export const HOME_DESCRIPTION =
   'Healthy, nutrition-conscious and diabetes-conscious meals cooked fresh in our cloud kitchen. Tell us what you need and we will cook it.'
@@ -30,6 +32,8 @@ export const IMAGES = {
   kitchen: '/images/kitchen.jpg',
   /** A plated meal on a dark surface. Sits behind the closing band. */
   ctaBg: '/images/band-cta.jpg',
+  /** The same laid-out table, reused beside the common questions. */
+  faq: '/images/hero-table.jpg',
 } as const
 
 /** 1. Announcement bar now lives in the site chrome (Header global), above the navbar. */
@@ -40,7 +44,7 @@ export const HERO_HEADLINE = 'Good food, cooked in'
 export const HERO_HEADLINE_ACCENT = 'our own kitchen.'
 export const HERO_SUB =
   'Healthy, nutrition-conscious and diabetes-conscious meals, cooked in small batches and delivered to your door.'
-export const HERO_PRIMARY = 'Message the kitchen'
+export const HERO_PRIMARY = WHATSAPP_CTA_LABEL
 export const HERO_SECONDARY = 'How It Works'
 
 /** Feature chips under the hero buttons. `icon` is resolved in Hero.tsx. */
@@ -191,6 +195,7 @@ export const TESTIMONIALS_PLACEHOLDER =
 
 /** 11. Common questions */
 export const FAQ_HEADING = 'Common questions'
+export const FAQ_PHOTO = 'The day’s meals, laid out ready to pack'
 export const FAQ = [
   {
     question: 'How do I order?',
@@ -223,5 +228,5 @@ export const FAQ = [
 export const FINAL_HEADING = 'Come and eat with us'
 export const FINAL_BODY =
   'Tell us what you need and the kitchen will come back with what it can cook for you this week.'
-export const FINAL_PRIMARY = 'Message the kitchen'
+export const FINAL_PRIMARY = WHATSAPP_CTA_LABEL
 export const FINAL_SECONDARY = 'Common Questions'
