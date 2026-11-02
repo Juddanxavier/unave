@@ -8,10 +8,28 @@ import React, { cache } from 'react'
 import { homeStatic } from '@/endpoints/seed/home-static'
 
 import { RenderBlocks } from '@/blocks/RenderBlocks'
-import { RenderHero } from '@/heros/RenderHero'
+import { PageHero } from '@/components/PageHero'
 import { generateMeta } from '@/utilities/generateMeta'
 import PageClient from './page.client'
 import { LivePreviewListener } from '@/components/LivePreviewListener'
+
+/**
+ * A CMS page opens with the same green band as the static content pages
+ * (design.md §6.3), so a page created in the admin never lands on the template's
+ * plain hero. The band takes the page's title as its headline and the lead line
+ * comes from the hero's rich text, kept to one paragraph.
+ */
+const CMS_HERO_EYEBROW = 'UNAVE'
+
+const lexicalToText = (node: unknown): string => {
+  if (Array.isArray(node)) return node.map(lexicalToText).join('')
+  if (!node || typeof node !== 'object') return ''
+  const { children, root, text } = node as { children?: unknown[]; root?: unknown; text?: unknown }
+  if (typeof text === 'string') return text
+  if (root) return lexicalToText(root)
+  if (Array.isArray(children)) return children.map(lexicalToText).join('')
+  return ''
+}
 
 export async function generateStaticParams() {
   const payload = await getPayload({ config: configPromise })
@@ -64,17 +82,21 @@ export default async function Page({ params: paramsPromise }: Args) {
     return <PayloadRedirects url={url} />
   }
 
-  const { hero, layout } = page
+  const { title, hero, layout } = page
 
   return (
-    <article className="pt-16 pb-24">
+    <article className="pb-24">
       <PageClient />
       {/* Allows redirects for valid pages too */}
       <PayloadRedirects disableNotFound url={url} />
 
       {draft && <LivePreviewListener />}
 
-      <RenderHero {...hero} />
+      <PageHero
+        eyebrow={CMS_HERO_EYEBROW}
+        headline={title || decodedSlug}
+        sub={lexicalToText(hero?.richText).trim()}
+      />
       <RenderBlocks blocks={layout} />
     </article>
   )

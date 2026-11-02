@@ -399,7 +399,9 @@ The brand copy source describes three more pages. None of them is built. If one 
 
 ### 10.3 Supporting pages
 
-Sign in, Sign up, Forgot password, Reset password, Account, Contact, Policies (Delivery, Refund, Cancellation, Terms, Privacy). The header and footer still promise a menu page that does not exist yet (deferred in the scope).
+Sign in, Sign up, Forgot password, Reset password, Account, Contact. The header and footer still promise a menu page that does not exist yet (deferred in the scope).
+
+**Policies (Delivery, Refunds, Cancellation, Terms, Privacy).** These five are CMS documents in the `pages` collection, so the kitchen edits their words in the admin without a deploy. Every page under `/[slug]` opens with the shared green band (§6.3), taking the page title as its headline and the hero's lead line as the band's sub line, then flows as content blocks in a two thirds column and closes with a message call to action. The copy commits to only what is true by design: requests go through the account page or by message, refunds return to the original payment method, and a box that has entered cooking cannot be cancelled. No delivery timings, zones or cut off times are promised; those are confirmed when an order is placed. The pages were created in the dev database on 2026-11-02 and the sitemap picks them up automatically.
 
 ### 10.4 Blog
 

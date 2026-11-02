@@ -87,7 +87,7 @@ After migrating an empty database, create the first staff account at `/admin`, t
 | `/blog/page/[pageNumber]` | The paged blog index |
 | `/blog/[slug]` | A single article |
 | `/search` | Search across posts |
-| `/[slug]` | A CMS page from the `pages` collection |
+| `/[slug]` | A CMS page from the `pages` collection, opened by the shared green band. Holds the five policy pages: delivery, refunds, cancellation, terms, privacy |
 | `/sign-in`, `/sign-up` | Customer sign in and sign up, email and password or Google |
 | `/forgot-password`, `/reset-password` | Customer password recovery |
 | `/verify-email` | Address confirmation after sign up |
