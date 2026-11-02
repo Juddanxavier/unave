@@ -40,7 +40,7 @@ export const HeaderNav: React.FC<Props> = ({ items, onNavigate, variant = 'deskt
             className={cn(
               'rounded-sm font-semibold transition-opacity focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none',
               variant === 'desktop'
-                ? 'text-primary hover:opacity-75 px-3 py-2 text-sm'
+                ? 'text-primary hover:opacity-75 inline-flex min-h-11 items-center px-3 text-sm'
                 : 'text-gold-400 hover:text-cream focus-visible:ring-gold-400 flex min-h-14 items-center px-1',
             )}
           />
