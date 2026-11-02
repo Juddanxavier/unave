@@ -35,7 +35,7 @@ export const ResetPassword: React.FC<Props> = ({ error, notice, token }) => {
 
   return (
     <AuthShell>
-      <h1 className="text-h2 short:text-h3">{RESET_COPY.title}</h1>
+      <h1 className="text-h2">{RESET_COPY.title}</h1>
       <p className="text-body text-ink-600 mt-3 short:mt-2 short:text-sm">{RESET_COPY.intro}</p>
 
       {confirmation ? (

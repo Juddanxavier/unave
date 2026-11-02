@@ -1,5 +1,5 @@
 /**
- * Fixed strings for the customer account screens (design.md §6.16).
+ * Fixed strings for the customer account screens (design.md §6.13).
  *
  * These are code, not CMS copy. Half of them name a security state, and an editor
  * must not be able to soften "that email already has an account" into something
@@ -44,7 +44,7 @@ export const CUSTOMER_AUTH_COPY: Record<CustomerAuthMode, CustomerAuthCopy> = {
 export const CUSTOMER_AUTH_EMAIL_LABEL = 'Email address'
 export const CUSTOMER_AUTH_FOOD_PREFERENCE_LABEL = 'Food preference (optional)'
 export const CUSTOMER_AUTH_FOOD_PREFERENCE_HINT =
-  'Veg, vegan and similar, so the kitchen knows what to cook for you. You can change it later on your account page.'
+  'The kitchen reads this, and you can change it later.'
 export const CUSTOMER_AUTH_PASSWORD_LABEL = 'Password'
 export const CUSTOMER_AUTH_NEW_PASSWORD_LABEL = 'New password'
 export const CUSTOMER_AUTH_CHOOSE_PASSWORD = 'Choose a password'
@@ -83,7 +83,7 @@ export const CUSTOMER_AUTH_PRIVACY =
   'We use your email address to keep your account and to send you messages about your orders. Nothing else.'
 
 export const CUSTOMER_AUTH_UNAVAILABLE =
-  'Google sign-in is not switched on yet. Use your email address and password, or contact us and we will help you with your account.'
+  'Google sign in is not switched on yet. Use your email address and password.'
 
 /**
  * Things that worked. Green enough to notice, quiet enough not to shout, and each

@@ -11,6 +11,7 @@ import * as migration_20261101_120000_create_plans_and_orders from './20261101_1
 import * as migration_20261101_130000_plans_chrome from './20261101_130000_plans_chrome';
 import * as migration_20261101_140000_plan_points from './20261101_140000_plan_points';
 import * as migration_20261101_150000_paid_orders_only from './20261101_150000_paid_orders_only';
+import * as migration_20261102_200000_order_requests from './20261102_200000_order_requests';
 
 
 export const migrations = [
@@ -78,5 +79,10 @@ export const migrations = [
     up: migration_20261101_150000_paid_orders_only.up,
     down: migration_20261101_150000_paid_orders_only.down,
     name: '20261101_150000_paid_orders_only',
+  },
+  {
+    up: migration_20261102_200000_order_requests.up,
+    down: migration_20261102_200000_order_requests.down,
+    name: '20261102_200000_order_requests',
   },
 ];

@@ -177,7 +177,7 @@ export default async function CheckoutPage({
               One payment for the plan. Paid orders show on your{' '}
               <Link
                 className="text-green-700 hover:opacity-75 font-semibold transition-opacity focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none motion-reduce:transition-none"
-                href="/account"
+                href="/account?tab=orders"
               >
                 account page
               </Link>

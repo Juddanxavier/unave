@@ -9,6 +9,7 @@ import { Customers } from './collections/Customers'
 import { EmailLog } from './collections/EmailLog'
 import { Enquiries } from './collections/Enquiries'
 import { Media } from './collections/Media'
+import { OrderRequests } from './collections/OrderRequests'
 import { Orders } from './collections/Orders'
 import { Pages } from './collections/Pages'
 import { Plans } from './collections/Plans'
@@ -97,6 +98,7 @@ export default buildConfig({
     Enquiries,
     EmailLog,
     Orders,
+    OrderRequests,
     Plans,
   ],
   cors: [getServerSideURL()].filter(Boolean),

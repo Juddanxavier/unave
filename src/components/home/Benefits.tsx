@@ -10,7 +10,7 @@ import { Section } from './Section'
  * while the list itself carries the order for anyone using a screen reader.
  */
 export const Benefits: React.FC = () => (
-  <Section tone="tint">
+  <Section tone="white">
     <h2 className="text-h2">{BENEFITS_HEADING}</h2>
 
     <ol className="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3" role="list">

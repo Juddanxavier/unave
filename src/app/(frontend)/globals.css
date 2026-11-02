@@ -11,8 +11,10 @@
 @custom-variant 2xl (@media (width >= theme(--breakpoint-2xl)));
 
 /* Height, not width. The account screens fill exactly one viewport, so on a short
-   screen the form tightens instead of growing a scrollbar (design.md §6.16). */
-@custom-variant short (@media (height < 54rem));
+   screen the form tightens instead of growing a scrollbar (design.md §6.13). The
+   threshold is set by the tallest form: sign-up with Google switched off needs
+   about 1040px of viewport before the roomy spacing fits without a scroll. */
+@custom-variant short (@media (height < 66rem));
 @custom-variant shorter (@media (height < 44rem));
 
 @layer base {
@@ -424,6 +426,13 @@
 body:has(.opening-band) .site-header:not([data-scrolled='true']) {
   --primary: var(--gold-400);
   color: var(--cream);
+}
+
+/* The account's request dialogs (design.md §6.15). A native <dialog>, so the
+   browser owns the focus trap, the Escape key and the inert page behind it; only
+   the scrim and the centring are ours. */
+.request-dialog::backdrop {
+  background-color: color-mix(in oklab, var(--green-900) 55%, transparent);
 }
 
 /* Scrolled header: solid green bar with a gold logo and gold links (design.md §6.2) */

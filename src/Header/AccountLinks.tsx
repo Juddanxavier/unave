@@ -22,7 +22,7 @@ interface Props {
 }
 
 /**
- * design.md §6.2 and §6.16. The account links are code, not CMS copy: they reflect
+ * design.md §6.2 and §6.13. The account links are code, not CMS copy: they reflect
  * session state, so an editor must not be able to point them somewhere else.
  *
  * Signed out, the bar carries a quiet `Sign in` (icon only on the narrowest

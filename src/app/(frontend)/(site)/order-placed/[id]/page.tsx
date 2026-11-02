@@ -22,7 +22,6 @@ import {
   ORDER_PAID_HEADING,
   ORDER_PAYMENT_ID_LABEL,
   ORDER_PLACED_TITLE,
-  ORDER_STARTS_ON_LABEL,
   ORDER_STATUS_LABEL,
 } from '../copy'
 
@@ -43,19 +42,6 @@ export const dynamic = 'force-dynamic'
 export const metadata: Metadata = {
   robots: { follow: false, index: false, nocache: true },
   title: ORDER_PLACED_TITLE,
-}
-
-const formatDate = (value: string | null | undefined): string | null => {
-  if (!value) return null
-
-  const date = new Date(value)
-  if (Number.isNaN(date.getTime())) return null
-
-  return new Intl.DateTimeFormat('en-IN', {
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric',
-  }).format(date)
 }
 
 const Detail: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
@@ -88,10 +74,6 @@ export default async function OrderPlacedPage({ params }: { params: Promise<{ id
 
   // Not found, or not yours: the same answer either way.
   if (!order || String(order.customer) !== String(customer.id)) notFound()
-
-  const startsOn = formatDate(
-    typeof order.startsOn === 'string' ? order.startsOn : null,
-  )
 
   return (
     <div className="container max-w-3xl py-16 sm:py-20">
@@ -136,17 +118,13 @@ export default async function OrderPlacedPage({ params }: { params: Promise<{ id
             value={<span className="text-green-700">{ACCOUNT_ORDER_STATUS_PAID}</span>}
           />
           <Detail label={ORDER_PAYMENT_ID_LABEL} value={order.gatewayPaymentId ?? ORDER_NOT_GIVEN} />
-          <Detail
-            label={ORDER_STARTS_ON_LABEL}
-            value={startsOn ?? ORDER_NOT_GIVEN}
-          />
         </dl>
       </section>
 
       <div className="mt-10 flex flex-wrap items-center gap-6">
         <Link
           className="text-green-700 hover:opacity-75 inline-flex min-h-11 items-center gap-2 rounded-sm text-sm font-semibold transition-opacity focus-visible:ring-[3px] focus-visible:ring-current focus-visible:outline-none motion-reduce:transition-none"
-          href="/account"
+          href="/account?tab=orders"
         >
           <ArrowLeft aria-hidden="true" className="size-4" strokeWidth={2} />
           {ORDER_BACK_TO_ACCOUNT}

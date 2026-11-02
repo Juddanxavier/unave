@@ -8,6 +8,7 @@ import { FinalCta } from '@/components/home/FinalCta'
 import { Gallery } from '@/components/home/Gallery'
 import { Hero } from '@/components/home/Hero'
 import { HowItWorks } from '@/components/home/HowItWorks'
+import { Plans } from '@/components/home/Plans'
 import { Testimonials } from '@/components/home/Testimonials'
 import { TrustStrip } from '@/components/home/TrustStrip'
 import { Welcome } from '@/components/home/Welcome'
@@ -71,6 +72,7 @@ export default async function HomePage() {
       <TrustStrip />
       <Welcome />
       <Benefits />
+      <Plans whatsapp={whatsapp} />
       <Categories />
       <HowItWorks />
       <Gallery />

@@ -3,6 +3,8 @@ import type { CollectionConfig } from 'payload'
 import { anyone } from '../../access/anyone'
 import { isStaff } from '../../access/isStaff'
 
+import { revalidatePlans, revalidatePlansDelete } from './hooks/revalidatePlans'
+
 /**
  * A meal plan the kitchen sells on the site (spec 0007).
  *
@@ -127,6 +129,10 @@ export const Plans: CollectionConfig = {
       },
     },
   ],
+  hooks: {
+    afterChange: [revalidatePlans],
+    afterDelete: [revalidatePlansDelete],
+  },
   labels: {
     plural: 'Plans',
     singular: 'Plan',

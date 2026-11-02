@@ -159,6 +159,12 @@ export const CATEGORIES = [
   },
 ] as const
 
+/** 6b. Plans. The newest open plans from the plans collection, three at most. */
+export const PLANS_SECTION_HEADING = 'Choose your plan'
+export const PLANS_SECTION_INTRO =
+  'A plan is a length of meals cooked from this kitchen, paid once. Pick the length that suits your week and we cook from it.'
+export const PLANS_SECTION_CTA = 'See every plan'
+
 /** The notice block required wherever a medical or dietary claim is made (design.md §6.11). */
 export const NOTICE_TITLE = 'A note on your goals'
 export const NOTICE_BODY =

@@ -37,6 +37,25 @@ pnpm dev
 - Admin: `http://localhost:3000/admin`. The first account you create there is the staff account.
 - Database: point `DATABASE_URL` at a Postgres database. The project ships guarded migrations in `src/migrations`, applied with `pnpm payload migrate`.
 
+### A new database
+
+An empty Postgres database is built from the migrations, never from the dev server:
+
+```bash
+# with DATABASE_URL, PAYLOAD_SECRET and NEXT_PUBLIC_SERVER_URL set for that database
+pnpm payload migrate          # apply every migration in src/migrations, in order
+pnpm payload migrate:status   # show what is applied and what is still pending
+```
+
+Run `pnpm payload migrate` before the site starts serving after a deploy, and on every deploy after it. It is safe to repeat: a migration that already ran is skipped, and each one in `src/migrations` is written to survive a database that already holds part of the schema.
+
+Two rules keep this safe:
+
+- **Development pushes, production migrates.** A database the dev server has touched has tables but no migration history. Running `pnpm payload migrate` against it makes Payload stop and ask how to reconcile the two, and its answer can drop data. For a schema change, add a guarded SQL file to `src/migrations` and register it in `src/migrations/index.ts`; everything after the 2026-10-29 baseline is hand written that way, so `migrate:create` is not the tool here.
+- **Never point `pnpm dev` at the production database.** The dev server reconciles schema on its own, outside the migration history.
+
+After migrating an empty database, create the first staff account at `/admin`, then fill in the site chrome globals (**Site chrome**, **Email settings**) in the admin.
+
 ### Scripts
 
 | Command | What it does |
@@ -57,7 +76,7 @@ pnpm dev
 
 | Route | What it is |
 | --- | --- |
-| `/` | Home: hero, trust strip, welcome, what makes us different, what we cook, how it works, kitchen photographs, customer words, FAQ, closing call to action |
+| `/` | Home: hero, trust strip, welcome, what makes us different, the newest plans, what we cook, how it works, kitchen photographs, customer words, FAQ, closing call to action |
 | `/about` | The story, what we stand for, how it works here, goals notice |
 | `/our-kitchen` | Inside the kitchen: the day in five steps, ingredient preparation, how a plate is planned, hygiene standards |
 | `/contact` | Ways to reach the kitchen and the enquiry form, which works without JavaScript |
@@ -72,7 +91,7 @@ pnpm dev
 | `/sign-in`, `/sign-up` | Customer sign in and sign up, email and password or Google |
 | `/forgot-password`, `/reset-password` | Customer password recovery |
 | `/verify-email` | Address confirmation after sign up |
-| `/account` | The customer's saved delivery details and food preference |
+| `/account` | The customer's account, in three tabs: details, delivery details, and paid orders with pause and cancellation requests |
 | `/admin` | Payload admin, staff only |
 | `/api/razorpay/webhook` | Razorpay webhook for payment confirmation |
 | `/api/customers/oauth/google/callback` | Google OAuth callback |
@@ -103,6 +122,7 @@ The admin is Payload, branded in `src/app/(payload)/custom.scss` and dressed wit
 | `enquiries` | Contact form submissions, written by the public endpoint and read by staff |
 | `plans` | Meal plans on sale, with durations and prices |
 | `orders` | Paid orders, one plan per order |
+| `order-requests` | Pause and cancellation requests from customers, written by the account action and triaged by staff |
 | `email-log` | One row per mail attempt, with the recipient masked |
 
 ### Globals

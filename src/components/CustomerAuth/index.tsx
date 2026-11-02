@@ -40,7 +40,7 @@ interface Props {
 }
 
 /**
- * design.md §6.16: a utility screen, not a campaign page.
+ * design.md §6.13: a utility screen, not a campaign page.
  *
  * The password form is the primary action and Google sits under the divider as a
  * secondary one, because the form is the path every visitor can take and the Google
@@ -58,7 +58,7 @@ export const CustomerAuth: React.FC<Props> = ({ error, mode, notice, returnTo })
 
   return (
     <AuthShell>
-      <h1 className="text-h2 short:text-h3">{copy.title}</h1>
+      <h1 className="text-h2">{copy.title}</h1>
       <p className="text-body text-ink-600 mt-3 short:mt-2 short:text-sm">{copy.intro}</p>
 
       {confirmation ? (
@@ -91,7 +91,7 @@ export const CustomerAuth: React.FC<Props> = ({ error, mode, notice, returnTo })
         </form>
       ) : null}
 
-      <div className="mt-8 short:mt-4">
+      <div className="my-8 short:my-3">
         <PasswordForm
           action="/api/customers/login"
           emailField
@@ -124,32 +124,36 @@ export const CustomerAuth: React.FC<Props> = ({ error, mode, notice, returnTo })
         </PasswordForm>
       </div>
 
-      <div className="my-8 short:my-4 shorter:my-3 flex items-center gap-3">
-        <span className="bg-line h-px flex-1" />
-        <span className="text-ink-600 text-sm">{CUSTOMER_AUTH_DIVIDER}</span>
-        <span className="bg-line h-px flex-1" />
-      </div>
-
       {configured ? (
-        <Cta
-          className="w-full"
-          href={
-            returnTo
-              ? `/api/customers/oauth/google?return=${encodeURIComponent(returnTo)}`
-              : '/api/customers/oauth/google'
-          }
-          variant="secondary"
-        >
-          <GoogleIcon />
-          {CUSTOMER_AUTH_CTA}
-        </Cta>
+        <>
+          <div className="my-7 flex items-center gap-3 short:my-4">
+            <span className="bg-line h-px flex-1" />
+            <span className="text-ink-600 text-sm">{CUSTOMER_AUTH_DIVIDER}</span>
+            <span className="bg-line h-px flex-1" />
+          </div>
+
+          <Cta
+            className="w-full"
+            href={
+              returnTo
+                ? `/api/customers/oauth/google?return=${encodeURIComponent(returnTo)}`
+                : '/api/customers/oauth/google'
+            }
+            variant="secondary"
+          >
+            <GoogleIcon />
+            {CUSTOMER_AUTH_CTA}
+          </Cta>
+        </>
       ) : (
-        <p className="text-body text-ink-600">{CUSTOMER_AUTH_UNAVAILABLE}</p>
+        <p className="text-ink-600 mt-4 text-sm leading-6 short:mt-3">{CUSTOMER_AUTH_UNAVAILABLE}</p>
       )}
 
-      <p className="text-ink-600 mt-4 short:mt-2 text-sm leading-6">{CUSTOMER_AUTH_PRIVACY}</p>
+      <p className="text-ink-600 border-line mt-6 border-t pt-4 text-sm leading-6 short:mt-4 short:pt-3">
+        {CUSTOMER_AUTH_PRIVACY}
+      </p>
 
-      <p className="text-body text-ink-600 mt-6 short:mt-3">
+      <p className="text-body text-ink-600 mt-4 short:mt-2">
         {copy.switchPrompt}{' '}
         <Link className={AUTH_INLINE_LINK} href={copy.switchHref}>
           {copy.switchLabel}

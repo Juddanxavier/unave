@@ -77,6 +77,7 @@ export interface Config {
     enquiries: Enquiry;
     'email-log': EmailLog;
     orders: Order;
+    'order-requests': OrderRequest;
     plans: Plan;
     redirects: Redirect;
     forms: Form;
@@ -104,6 +105,7 @@ export interface Config {
     enquiries: EnquiriesSelect<false> | EnquiriesSelect<true>;
     'email-log': EmailLogSelect<false> | EmailLogSelect<true>;
     orders: OrdersSelect<false> | OrdersSelect<true>;
+    'order-requests': OrderRequestsSelect<false> | OrderRequestsSelect<true>;
     plans: PlansSelect<false> | PlansSelect<true>;
     redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     forms: FormsSelect<false> | FormsSelect<true>;
@@ -1029,6 +1031,28 @@ export interface Plan {
   createdAt: string;
 }
 /**
+ * Pause and cancellation requests from customers. One row per ask; mark it handled once the kitchen has replied.
+ *
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-requests".
+ */
+export interface OrderRequest {
+  id: number;
+  customer: number | Customer;
+  order: number | Order;
+  type: 'cancel' | 'pause';
+  pauseFrom?: string | null;
+  pauseTo?: string | null;
+  reason?: string | null;
+  status?: ('new' | 'handled') | null;
+  /**
+   * What the kitchen did about it. Never shown to the customer.
+   */
+  staffNote?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
  * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "redirects".
  */
@@ -1262,6 +1286,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'orders';
         value: number | Order;
+      } | null)
+    | ({
+        relationTo: 'order-requests';
+        value: number | OrderRequest;
       } | null)
     | ({
         relationTo: 'plans';
@@ -1754,6 +1782,22 @@ export interface OrdersSelect<T extends boolean = true> {
   gatewaySignature?: T;
   paidAt?: T;
   startsOn?: T;
+  updatedAt?: T;
+  createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "order-requests_select".
+ */
+export interface OrderRequestsSelect<T extends boolean = true> {
+  customer?: T;
+  order?: T;
+  type?: T;
+  pauseFrom?: T;
+  pauseTo?: T;
+  reason?: T;
+  status?: T;
+  staffNote?: T;
   updatedAt?: T;
   createdAt?: T;
 }

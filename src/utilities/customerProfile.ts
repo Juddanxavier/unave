@@ -4,7 +4,7 @@ import { FOOD_PREFERENCE_VALUES } from './foodPreference'
 
 /**
  * The rules for the delivery details and food preference a customer saves on their
- * profile (design.md §6.16).
+ * profile (design.md §6.13).
  *
  * Client-safe like the auth schemas, and for the same reason: the account form
  * checks the same rules in the browser before it submits, and the server action
