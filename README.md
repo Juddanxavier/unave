@@ -159,7 +159,7 @@ All server side, none of them prefixed with `NEXT_PUBLIC_` except the server URL
 | --- | --- |
 | `DATABASE_URL` | Postgres connection string |
 | `PAYLOAD_SECRET` | Payload session and token signing |
-| `NEXT_PUBLIC_SERVER_URL` | Canonical site URL, links, CORS, sitemaps |
+| `NEXT_PUBLIC_SERVER_URL` | Canonical site URL, links, CORS, sitemaps. `http://localhost:3000` in development, `https://unave.in` in production |
 | `CRON_SECRET` | Authenticating the jobs endpoint |
 | `PREVIEW_SECRET` | Validating preview requests |
 | `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`, `MAIL_REPLY_TO` | Sender identity, required for any send |
