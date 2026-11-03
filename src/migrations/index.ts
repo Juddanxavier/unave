@@ -8,6 +8,7 @@ import * as migration_20261031_130000_customer_profile from './20261031_130000_c
 import * as migration_20261031_150000_enquiries from './20261031_150000_enquiries';
 import * as migration_20261031_180000_remove_plans_subscriptions from './20261031_180000_remove_plans_subscriptions';
 import * as migration_20261101_120000_create_plans_and_orders from './20261101_120000_create_plans_and_orders';
+import * as migration_20261101_125000_chrome_schema_backfill from './20261101_125000_chrome_schema_backfill';
 import * as migration_20261101_130000_plans_chrome from './20261101_130000_plans_chrome';
 import * as migration_20261101_140000_plan_points from './20261101_140000_plan_points';
 import * as migration_20261101_150000_paid_orders_only from './20261101_150000_paid_orders_only';
@@ -64,6 +65,11 @@ export const migrations = [
     up: migration_20261101_120000_create_plans_and_orders.up,
     down: migration_20261101_120000_create_plans_and_orders.down,
     name: '20261101_120000_create_plans_and_orders',
+  },
+  {
+    up: migration_20261101_125000_chrome_schema_backfill.up,
+    down: migration_20261101_125000_chrome_schema_backfill.down,
+    name: '20261101_125000_chrome_schema_backfill',
   },
   {
     up: migration_20261101_130000_plans_chrome.up,

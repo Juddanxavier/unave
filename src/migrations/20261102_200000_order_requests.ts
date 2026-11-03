@@ -58,11 +58,26 @@ export async function up({ db }: MigrateUpArgs): Promise<void> {
        ALTER TABLE "order_requests" ADD CONSTRAINT "order_requests_order_id_orders_id_fk"
          FOREIGN KEY ("order_id") REFERENCES "public"."orders"("id") ON DELETE set null ON UPDATE no action;
      END IF;
-   END $$;`)
+   END $$;
+
+   -- The collection joins Payload's locking table like every other one; the
+   -- table exists by now, so the foreign key here is safe to create.
+   ALTER TABLE "payload_locked_documents_rels" ADD COLUMN IF NOT EXISTS "order_requests_id" integer;
+   CREATE INDEX IF NOT EXISTS "payload_locked_documents_rels_order_requests_id_idx" ON "payload_locked_documents_rels" USING btree ("order_requests_id");
+   DO $$ BEGIN
+     IF NOT EXISTS (
+       SELECT 1 FROM pg_constraint WHERE conname = 'payload_locked_documents_rels_order_requests_fk'
+     ) THEN
+       ALTER TABLE "payload_locked_documents_rels" ADD CONSTRAINT "payload_locked_documents_rels_order_requests_fk"
+         FOREIGN KEY ("order_requests_id") REFERENCES "public"."order_requests"("id") ON DELETE cascade ON UPDATE no action;
+     END IF;
+   END $$;
+`)
 }
 
 export async function down({ db }: MigrateDownArgs): Promise<void> {
   await db.execute(sql`
+   ALTER TABLE "payload_locked_documents_rels" DROP COLUMN IF EXISTS "order_requests_id";
    DROP TABLE IF EXISTS "order_requests";
    DROP TYPE IF EXISTS "public"."enum_order_requests_type";
    DROP TYPE IF EXISTS "public"."enum_order_requests_status";`)
