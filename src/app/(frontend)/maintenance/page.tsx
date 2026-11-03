@@ -20,6 +20,12 @@ export const viewport: Viewport = {
   themeColor: '#0F2E21',
 }
 
+// The Docker build runs with no database and no PAYLOAD_SECRET, and prerendering
+// this page would reach Payload through the segment's not-found boundary (the
+// same reason every other page under (frontend) is force-dynamic). Serving it
+// per request costs nothing: the page reads nothing but its own markup.
+export const dynamic = 'force-dynamic'
+
 export default function Maintenance() {
   return (
     <main className="relative flex min-h-svh flex-col items-center justify-center overflow-hidden bg-green-900 px-6 text-center">
