@@ -4,6 +4,9 @@ import configPromise from '@payload-config'
 import { refresh } from 'next/cache'
 import { getPayload } from 'payload'
 
+import type { Order } from '@/payload-types'
+
+import { sendOrderRequestNotice } from '@/collections/OrderRequests/mail'
 import { customerProfileSchema } from '@/utilities/customerProfile'
 import { orderRequestSchema } from '@/utilities/orderRequest'
 import { getSignedInCustomer } from '@/utilities/customerSessionServer'
@@ -133,7 +136,7 @@ export const sendOrderRequest = async (
 
   const payload = await getPayload({ config: configPromise })
 
-  let orderId: null | number = null
+  let ownedOrder: null | Order = null
 
   try {
     const order = await payload.findByID({
@@ -143,12 +146,14 @@ export const sendOrderRequest = async (
       overrideAccess: true,
     })
 
-    if (order && String(order.customer) === String(customer.id)) orderId = Number(order.id)
+    if (order && String(order.customer) === String(customer.id)) ownedOrder = order
   } catch {
-    orderId = null
+    ownedOrder = null
   }
 
-  if (orderId === null) return { status: 'error', message: ACCOUNT_REQUEST_ORDER_MISSING }
+  if (ownedOrder === null) return { status: 'error', message: ACCOUNT_REQUEST_ORDER_MISSING }
+
+  const orderId = Number(ownedOrder.id)
 
   // One open ask per order and kind, so a double press cannot queue two of them.
   const open = await payload.find({
@@ -167,8 +172,10 @@ export const sendOrderRequest = async (
 
   if (open.docs.length > 0) return { status: 'error', message: ACCOUNT_REQUEST_DUPLICATE }
 
+  let requestId: number | string | null = null
+
   try {
-    await payload.create({
+    const request = await payload.create({
       collection: 'order-requests',
       data: {
         customer: Number(customer.id),
@@ -186,10 +193,27 @@ export const sendOrderRequest = async (
       depth: 0,
       overrideAccess: true,
     })
+
+    requestId = request.id
   } catch {
     payload.logger.error({ msg: 'order_request_write_failed', order: orderId })
     return { status: 'error', message: ACCOUNT_REQUEST_FAILED }
   }
+
+  await sendOrderRequestNotice(payload, {
+    customer: { email: customer.email, name: customer.name },
+    orderId,
+    orderSummary: (ownedOrder.items ?? [])
+      .map((item) => item.planTitle)
+      .filter((title): title is string => Boolean(title))
+      .join(', '),
+    pauseFrom:
+      parsed.data.type === 'pause' ? `${parsed.data.from}T00:00:00.000Z` : null,
+    pauseTo: parsed.data.type === 'pause' ? `${parsed.data.to}T00:00:00.000Z` : null,
+    reason: parsed.data.reason,
+    requestId,
+    type: parsed.data.type,
+  })
 
   refresh()
 

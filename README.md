@@ -140,7 +140,9 @@ The admin is Payload, branded in `src/app/(payload)/custom.scss` and dressed wit
 One module, `src/email/`, renders, sends, falls back and logs.
 
 - Payload's mail adapter (`unaveEmailAdapter`) catches everything Payload itself sends and logs it under the `system` key.
-- Code calls the senders directly: `sendCustomerAuthMail` for address confirmation and password reset, `sendOrderMail` for the buyer confirmation and the kitchen notice, `sendSystemMail` for enquiry notices and the admin test send.
+- Code calls the senders directly: `sendCustomerAuthMail` for address confirmation and password reset, `sendOrderMail` for the buyer confirmation and the kitchen notice, `sendSystemMail` for every kitchen notice and the admin test send.
+- The kitchen hears about all four public forms: a contact enquiry, a paid order, a pause or cancellation request from an order, and a form builder submission. Each notice goes to the footer contact email (Site chrome > Footer), and each submission also writes its own admin row (`enquiries`, `orders`, `order-requests`, `form-submissions`), so a skipped or failed email never loses the message. Notice failures are logged and never fail the request, the form or the order.
+- Form builder submissions are mailed by an `afterChange` hook on create only, so editing a submission in the admin does not mail the kitchen again.
 - ZeptoMail is tried first. A retryable failure falls back to SMTP once. Every attempt writes one row in `email-log`, and a failed send never throws into the calling flow.
 - Templates are React Email files in `src/email/templates/`, rendered to HTML and plain text.
 - A scheduled task, `pruneEmailLog`, trims old rows. It is protected by `CRON_SECRET`.
