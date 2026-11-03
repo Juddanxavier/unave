@@ -1,6 +1,7 @@
 {
   "name": "unave",
   "version": "1.0.0",
+  "packageManager": "pnpm@11.5.0",
   "description": "Website template for Payload",
   "license": "MIT",
   "type": "module",
@@ -87,12 +88,5 @@
   "engines": {
     "node": "^22.23.4 || >=24.22.1",
     "pnpm": "^9 || ^10 || ^11"
-  },
-  "pnpm": {
-    "onlyBuiltDependencies": [
-      "sharp",
-      "esbuild",
-      "unrs-resolver"
-    ]
   }
 }
