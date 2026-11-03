@@ -1,6 +1,6 @@
 # Deploying UNAVE
 
-Production runs on one server as Docker, managed by Coolify. The database is
+Production runs on one server as Docker, managed by Dokploy. The database is
 Postgres on the same server, not Neon: Neon stays where it belongs, in
 development. This page is the whole runbook, from a bare server to a live site
 at `https://unave.in`.
@@ -9,14 +9,15 @@ at `https://unave.in`.
 
 | Piece | Where it runs | Notes |
 | --- | --- | --- |
-| The Next.js app | Docker container, port 3000 | Built from the repo `Dockerfile`, which needs `output: 'standalone'` in `next.config.ts` (already set) |
-| Postgres 17 | Docker container on the same server | No published port; only the app reaches it. Tuned in `docker-compose.yml` for a 4 CPU, 8 GB box |
+| The Next.js app | Docker container, port 3000 inside | Built from the repo `Dockerfile`, which needs `output: 'standalone'` in `next.config.ts` (already set) |
+| Postgres 17 | Docker container on the same server | No published port; only the app reaches it. Tuned in the compose file for a 4 CPU, 8 GB box |
 | Uploads | The `media` volume at `/app/public/media` | Survives redeploys. Move to object storage if the collection grows |
 | The database the dev machines use | Neon | Never the production one, and never pointed at by `pnpm dev` |
 
-Coolify is Docker with a management layer on top: reverse proxy, automatic
-HTTPS, deploys on push, logs and env editing. Running the compose file by hand
-with `docker compose up -d` works too; Coolify just removes the parts you would
+Dokploy is Docker with a management layer on top: Traefik for routing and
+automatic HTTPS, deploys on push, logs, volumes and env editing in one
+dashboard. Running the plain `docker-compose.yml` by hand with
+`docker compose up -d` also works; Dokploy just removes the parts you would
 otherwise build yourself, and on one small server that trade is worth it.
 
 ## Prepare the server
@@ -35,15 +36,20 @@ Ubuntu 24.04, 4 CPUs, 8 GB RAM:
    echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
    ```
 
-3. Open ports 22, 80 and 443 in the firewall; nothing else needs to be public.
+3. Open ports 22, 80 and 443 in the firewall. Dokploy's dashboard is on port
+   3000; keep it reachable only for you (a firewall rule for your IP is enough).
 4. Point DNS at the server: `unave.in` and `www.unave.in` as A records.
-5. Install Coolify with its install script and open its dashboard on port 8000.
+5. Install Dokploy with its install script and open the dashboard on port 3000.
+   The install creates the `dokploy-network` the app joins.
 
-## Deploy with Coolify
+## Deploy with Dokploy
 
-1. New resource, Docker Compose, from the GitHub repo, branch `master`.
-   Coolify reads `docker-compose.yml` and builds the app and the database.
-2. Set the environment in Coolify (or a `.env` it can read):
+1. In the dashboard, create a project, then a **Compose** service pointed at
+   this repository, branch `master`, with the compose path set to
+   `./docker-compose.dokploy.yml`. That file is `docker-compose.yml` plus the
+   Traefik labels for `unave.in` and `www.unave.in`; it publishes no host port,
+   because the Dokploy dashboard owns port 3000 on the host.
+2. Set the environment on the service:
 
    | Variable | Value |
    | --- | --- |
@@ -59,15 +65,13 @@ Ubuntu 24.04, 4 CPUs, 8 GB RAM:
 
    `NEXT_PUBLIC_SERVER_URL` is baked into the client bundles at build time, so
    it must be set before the first build, not after.
-3. Give the `app` service the domain `https://unave.in` (and `www`) in Coolify,
-   targeting port 3000. Coolify issues the certificates.
-4. Deploy. The `migrate` service runs first and applies every migration in
+3. Deploy. The `migrate` service runs first and applies every migration in
    `src/migrations`; the app starts only after it succeeds. It is safe to repeat
-   on every deploy.
-5. Razorpay dashboard: set the webhook to
+   on every deploy. Traefik issues the certificates on the first request.
+4. Razorpay dashboard: set the webhook to
    `https://unave.in/api/razorpay/webhook` with `payment.captured`, auto
    capture on.
-6. Visit `/admin`, create the first staff account, then fill in **Site chrome**
+5. Visit `/admin`, create the first staff account, then fill in **Site chrome**
    (header, footer, contact email) and **Email settings**. The contact email in
    the footer is also the inbox every kitchen notice goes to.
 
@@ -75,31 +79,35 @@ Ubuntu 24.04, 4 CPUs, 8 GB RAM:
 
 **Payload jobs.** The daily `pruneEmailLog` task waits for a knock: Payload's
 scheduler marks what is due, and something has to call the jobs endpoint for the
-work to run. In Coolify, add an hourly scheduled task:
+work to run. Add a host cron entry that runs hourly:
 
 ```bash
-curl -s -H "Authorization: Bearer $CRON_SECRET" https://unave.in/api/payload-jobs/run
+0 * * * * curl -s -H "Authorization: Bearer THE_CRON_SECRET" https://unave.in/api/payload-jobs/run
 ```
 
 Running it hourly is fine; the task itself decides it is due at 03:00 and runs
 once a day.
 
 **Backups.** The database is the only thing that cannot be rebuilt. Nightly,
-from the host:
+from the host (the container name starts with the project name; find it with
+`docker ps`):
 
 ```bash
-docker compose exec -T postgres pg_dump -U unave -Fc unave > /backups/unave-$(date +%F).dump
+docker exec -t CONTAINER_OF_POSTGRES pg_dump -U unave -Fc unave > /backups/unave-$(date +%F).dump
 ```
 
 Keep dumps off the server as well (rclone to any object storage), and prune old
 ones. To restore:
 
 ```bash
-cat unave-2026-11-03.dump | docker compose exec -T postgres pg_restore -U unave -d unave --clean --if-exists
+cat unave-2026-11-03.dump | docker exec -i CONTAINER_OF_POSTGRES pg_restore -U unave -d unave --clean --if-exists
 ```
 
-Snapshot the `media` volume with the same cadence, or copy `public/media`
-alongside the dumps.
+The uploads need the same care. Copy the `media` volume alongside the dumps:
+
+```bash
+docker run --rm -v UNAVE_MEDIA_VOLUME:/data alpine tar czf - -C /data . > /backups/media-$(date +%F).tar.gz
+```
 
 **Migrations.** New schema arrives as a guarded file in `src/migrations`
 registered in `index.ts`; the compose `migrate` service applies it on the next
@@ -123,7 +131,7 @@ Two paths, and the honest advice is to prefer the first:
    Exclude the housekeeping tables, then restore inside the server:
 
    ```bash
-   docker compose exec -T postgres psql -U unave -d unave \
+   docker exec -i CONTAINER_OF_POSTGRES psql -U unave -d unave \
      -c "CREATE SCHEMA IF NOT EXISTS neon_import;"
    # load the dump into neon_import, then move the rows across table by table
    ```
@@ -136,5 +144,5 @@ Two paths, and the honest advice is to prefer the first:
 
 The image build is the only heavy moment on an 8 GB server. The 4 GB swap
 usually absorbs it. If a deploy still fails while building, raise the swap to
-6 GB or build the image elsewhere (GitHub Actions) and let Coolify deploy the
+6 GB or build the image elsewhere (GitHub Actions) and let Dokploy deploy the
 finished image instead.

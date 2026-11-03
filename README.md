@@ -58,7 +58,7 @@ After migrating an empty database, create the first staff account at `/admin`, t
 
 ### Deploying
 
-Production is Docker on one server, managed by Coolify, with Postgres running beside the app and Neon left to development. `docker-compose.yml` holds the app, the database and a one shot migration, and `docs/deploy.md` is the runbook from a bare server to `https://unave.in`.
+Production is Docker on one server, managed by Dokploy, with Postgres running beside the app and Neon left to development. `docker-compose.yml` holds the app, the database and a one shot migration, `docker-compose.dokploy.yml` adds the Traefik labels for Dokploy, and `docs/deploy.md` is the runbook from a bare server to `https://unave.in`.
 
 ### Scripts
 
