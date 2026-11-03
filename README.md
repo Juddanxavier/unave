@@ -13,7 +13,7 @@ Browsing the site and messaging the kitchen never need an account. An account sa
 | Framework | Next.js 16, App Router, Turbopack |
 | UI | React 19, Tailwind CSS v4, shadcn/ui and Radix primitives, Lucide icons |
 | CMS and admin | Payload 3.92, mounted in the same Next app |
-| Database | PostgreSQL through `@payloadcms/db-postgres` (Neon in development) |
+| Database | PostgreSQL through `@payloadcms/db-postgres` (Neon in development, self hosted in production) |
 | Content editing | Lexical rich text, Payload block library, live preview |
 | Forms | `@payloadcms/plugin-form-builder`, React Hook Form, Zod |
 | Mail | React Email templates, ZeptoMail REST as primary, SMTP through Nodemailer as fallback |
@@ -55,6 +55,10 @@ Two rules keep this safe:
 - **Never point `pnpm dev` at the production database.** The dev server reconciles schema on its own, outside the migration history.
 
 After migrating an empty database, create the first staff account at `/admin`, then fill in the site chrome globals (**Site chrome**, **Email settings**) in the admin.
+
+### Deploying
+
+Production is Docker on one server, managed by Coolify, with Postgres running beside the app and Neon left to development. `docker-compose.yml` holds the app, the database and a one shot migration, and `docs/deploy.md` is the runbook from a bare server to `https://unave.in`.
 
 ### Scripts
 
@@ -157,7 +161,7 @@ All server side, none of them prefixed with `NEXT_PUBLIC_` except the server URL
 
 | Variable | Used for |
 | --- | --- |
-| `DATABASE_URL` | Postgres connection string |
+| `DATABASE_URL` | Postgres connection string. In development the Neon database; in production the compose stack builds its own: `postgres://unave:password@postgres:5432/unave` |
 | `PAYLOAD_SECRET` | Payload session and token signing |
 | `NEXT_PUBLIC_SERVER_URL` | Canonical site URL, links, CORS, sitemaps. `http://localhost:3000` in development, `https://unave.in` in production |
 | `CRON_SECRET` | Authenticating the jobs endpoint |

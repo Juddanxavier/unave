@@ -1,31 +1,99 @@
-version: '3'
+# The production stack: the Postgres database, a one shot migration that runs
+# before the app starts, and the app itself.
+#
+# Coolify can deploy this file as it is, and plain Docker runs it with
+# `docker compose up -d`. The database publishes no port: only containers on
+# this network reach it. Its settings are tuned for a 4 CPU, 8 GB server where
+# the app and the database share the machine, which is also why the site runs
+# with 4 GB of swap on that server: the build can need the headroom.
+#
+# The environment comes from the usual .env file (or Coolify's variables), with
+# two additions the stack owns: POSTGRES_PASSWORD for the database, and the
+# DATABASE_URL the app is told again here, since the database lives on this
+# network rather than at whatever the checked in .env points at.
+#
+# Uploads live on the `media` volume at /app/public/media, so a redeploy never
+# wipes the kitchen's photographs.
 
 services:
-  payload:
-    image: node:22.23.4-alpine
+  postgres:
+    image: postgres:17-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-unave}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-unave}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    command:
+      - postgres
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - work_mem=16MB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - max_connections=50
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U $$POSTGRES_USER -d $$POSTGRES_DB']
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  migrate:
+    build:
+      context: .
+      target: builder
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://unave.in}
+    restart: 'no'
+    environment:
+      DATABASE_URL: postgres://${POSTGRES_USER:-unave}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-unave}
+      PAYLOAD_SECRET: ${PAYLOAD_SECRET:?set PAYLOAD_SECRET}
+    command: ['pnpm', 'payload', 'migrate']
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    build:
+      context: .
+      target: runner
+      args:
+        NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://unave.in}
+    restart: unless-stopped
     ports:
       - '3000:3000'
-    volumes:
-      - .:/home/node/app
-      - node_modules:/home/node/app/node_modules
-    working_dir: /home/node/app/
-    command: sh -c "yarn install && yarn dev"
-    depends_on:
-      - mongo
     env_file:
-      - .env
-
-  mongo:
-    image: mongo:latest
-    ports:
-      - '27017:27017'
-    command:
-      - --storageEngine=wiredTiger
+      - path: .env
+        required: false
+    environment:
+      # The database lives on this network, so the URL the app sees is told
+      # again here, whatever DATABASE_URL says in .env.
+      DATABASE_URL: postgres://${POSTGRES_USER:-unave}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-unave}
+      NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://unave.in}
+      NODE_ENV: production
     volumes:
-      - data:/data/db
-    logging:
-      driver: none
+      - media:/app/public/media
+    depends_on:
+      postgres:
+        condition: service_healthy
+      migrate:
+        condition: service_completed_successfully
+    healthcheck:
+      test:
+        [
+          'CMD-SHELL',
+          'wget -qO- http://127.0.0.1:3000/api/globals/header >/dev/null 2>&1 || exit 1',
+        ]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
 volumes:
-  data:
-  node_modules:
+  pgdata:
+  media:

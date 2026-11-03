@@ -25,10 +25,14 @@ WORKDIR /app
 COPY --from=deps /app/node_modules ./node_modules
 COPY . .
 
-# Next.js collects completely anonymous telemetry data about general usage.
-# Learn more here: https://nextjs.org/telemetry
-# Uncomment the following line in case you want to disable telemetry during the build.
-# ENV NEXT_TELEMETRY_DISABLED 1
+# pnpm on the PATH for one shot commands like the compose `migrate` service.
+RUN corepack enable
+
+# NEXT_PUBLIC_ values are inlined into the client bundles at build time, so the
+# site URL has to be known while building, not only at run time.
+ARG NEXT_PUBLIC_SERVER_URL=https://unave.in
+ENV NEXT_PUBLIC_SERVER_URL=$NEXT_PUBLIC_SERVER_URL
+ENV NEXT_TELEMETRY_DISABLED=1
 
 RUN \
   if [ -f yarn.lock ]; then yarn run build; \

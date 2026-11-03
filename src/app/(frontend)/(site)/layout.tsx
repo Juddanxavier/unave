@@ -5,6 +5,16 @@ import { draftMode } from 'next/headers'
 import React from 'react'
 
 /**
+ * Every page here renders at request time.
+ *
+ * The chrome is a database read, so a build with no database reachable (a Docker
+ * image build, for example) cannot prerender these pages; forcing dynamic
+ * rendering keeps the build free of any database while the site keeps the
+ * payload caches (globals, plans) that keep the per request work small.
+ */
+export const dynamic = 'force-dynamic'
+
+/**
  * The chrome for every public content page.
  *
  * Header and footer live here rather than in the root layout so the account screens

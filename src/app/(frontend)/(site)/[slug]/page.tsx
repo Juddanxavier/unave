@@ -32,27 +32,33 @@ const lexicalToText = (node: unknown): string => {
 }
 
 export async function generateStaticParams() {
-  const payload = await getPayload({ config: configPromise })
-  const pages = await payload.find({
-    collection: 'pages',
-    draft: false,
-    limit: 1000,
-    overrideAccess: false,
-    pagination: false,
-    select: {
-      slug: true,
-    },
-  })
-
-  const params = pages.docs
-    ?.filter((doc) => {
-      return doc.slug !== 'home'
-    })
-    .map(({ slug }) => {
-      return { slug }
+  try {
+    const payload = await getPayload({ config: configPromise })
+    const pages = await payload.find({
+      collection: 'pages',
+      draft: false,
+      limit: 1000,
+      overrideAccess: false,
+      pagination: false,
+      select: {
+        slug: true,
+      },
     })
 
-  return params
+    const params = pages.docs
+      ?.filter((doc) => {
+        return doc.slug !== 'home'
+      })
+      .map(({ slug }) => {
+        return { slug }
+      })
+
+    return params
+  } catch {
+    // A Docker image build runs without a database. Returning nothing here
+    // lets the build finish; every page then renders on demand instead.
+    return []
+  }
 }
 
 type Args = {
