@@ -59,6 +59,7 @@ Ubuntu 24.04, 4 CPUs, 8 GB RAM:
    | `PAYLOAD_SECRET` | A long random string |
    | `NEXT_PUBLIC_SERVER_URL` | `https://unave.in` |
    | `CRON_SECRET`, `PREVIEW_SECRET` | Random strings |
+   | `MAINTENANCE_MODE` | Leave unset to serve the site normally. Set `on` to hold every public page on the maintenance screen; the admin panel and the API stay reachable. Changing it takes a redeploy |
    | `MAIL_FROM_ADDRESS`, `MAIL_FROM_NAME`, `MAIL_REPLY_TO` | The sender identity, required for any mail to leave |
    | `ZEPTOMAIL_API_KEY` or the `SMTP_*` group | One transport at least |
    | `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET` | For checkout |

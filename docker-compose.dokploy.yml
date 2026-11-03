@@ -68,6 +68,9 @@ services:
       # again here, whatever DATABASE_URL says in .env.
       DATABASE_URL: postgres://${POSTGRES_USER:-unave}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-unave}
       NEXT_PUBLIC_SERVER_URL: ${NEXT_PUBLIC_SERVER_URL:-https://unave.in}
+      # Set MAINTENANCE_MODE=on in the Dokploy environment to hold every public
+      # page on the maintenance screen; the admin panel and the API stay up.
+      MAINTENANCE_MODE: ${MAINTENANCE_MODE:-}
       NODE_ENV: production
     volumes:
       - media:/app/public/media
