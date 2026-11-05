@@ -48,6 +48,7 @@ export const AuthShell: React.FC<Props> = ({ children }) => (
         alt=""
         className="object-cover object-center"
         fill
+        priority
         quality={75}
         sizes="50vw"
         src="/images/gallery-3.jpg"
