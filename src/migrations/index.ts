@@ -13,6 +13,7 @@ import * as migration_20261101_130000_plans_chrome from './20261101_130000_plans
 import * as migration_20261101_140000_plan_points from './20261101_140000_plan_points';
 import * as migration_20261101_150000_paid_orders_only from './20261101_150000_paid_orders_only';
 import * as migration_20261102_200000_order_requests from './20261102_200000_order_requests';
+import * as migration_20261105_170000_plan_category_audience from './20261105_170000_plan_category_audience';
 
 
 export const migrations = [
@@ -90,5 +91,10 @@ export const migrations = [
     up: migration_20261102_200000_order_requests.up,
     down: migration_20261102_200000_order_requests.down,
     name: '20261102_200000_order_requests',
+  },
+  {
+    up: migration_20261105_170000_plan_category_audience.up,
+    down: migration_20261105_170000_plan_category_audience.down,
+    name: '20261105_170000_plan_category_audience',
   },
 ];
