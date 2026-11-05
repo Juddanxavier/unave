@@ -32,6 +32,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html
       className={cn(playfair.variable, inter.variable, GeistMono.variable)}
+      data-theme="light"
       lang="en"
       suppressHydrationWarning
     >
