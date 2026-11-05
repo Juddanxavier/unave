@@ -29,7 +29,7 @@ export const Plans: CollectionConfig = {
     update: isStaff,
   },
   admin: {
-    defaultColumns: ['title', 'available', 'updatedAt'],
+    defaultColumns: ['title', 'category', 'available', 'updatedAt'],
     description:
       'The meal plans sold on the site. Turn `available` off to pause a plan without deleting it; prices are entered and shown in rupees.',
     group: 'Store',
@@ -116,6 +116,34 @@ export const Plans: CollectionConfig = {
             description: 'What the customer pays for this duration, in rupees. 499 means ₹499.',
           },
         },
+      ],
+    },
+    {
+      name: 'category',
+      type: 'select',
+      label: 'Category',
+      required: true,
+      admin: {
+        description: 'How the meal reaches the customer. Shown as a label on the plan card.',
+      },
+      options: [
+        { label: 'Ready to cook', value: 'ready-to-cook' },
+        { label: 'Ready to eat', value: 'ready-to-eat' },
+        { label: 'Fresh from produce', value: 'fresh-from-produce' },
+      ],
+    },
+    {
+      name: 'audience',
+      type: 'select',
+      label: 'Audience',
+      required: true,
+      admin: {
+        description: 'Who the plan is for. Shown as a label on the plan card, next to the category.',
+      },
+      options: [
+        { label: 'Kids', value: 'kids' },
+        { label: 'Adults', value: 'adults' },
+        { label: 'Special', value: 'special' },
       ],
     },
     {

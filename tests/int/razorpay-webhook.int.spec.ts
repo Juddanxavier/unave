@@ -199,6 +199,8 @@ beforeAll(async () => {
       durations: [{ days: 5, label: 'One week', price: TOTAL }],
       slug: `${run}-plan`,
       title: 'Lunch plan',
+      category: 'ready-to-eat',
+      audience: 'adults',
     },
     depth: 0,
     overrideAccess: true,

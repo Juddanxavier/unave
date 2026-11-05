@@ -10,7 +10,7 @@ import { PlanPurchase, type PlanDuration } from './PlanPurchase'
 /**
  * One plan on the shelf (spec 0007, AC-1).
  *
- * A pricing card, not a photo tile: the plan's name and words lead, then up to
+ * A pricing card, not a photo tile: the plan's category and name lead, then up to
  * five short points, then the panel where the chosen duration's per day price
  * sits above the duration chips and the action. The plan record's photo stays
  * in the admin for the kitchen's use; the shelf keeps its height on the price,
@@ -22,6 +22,17 @@ import { PlanPurchase, type PlanDuration } from './PlanPurchase'
  * Prices come straight from the plan record, never from the browser, and they
  * are formatted in the one place money is ever formatted.
  */
+const CATEGORY_LABEL: Record<Plan['category'], string> = {
+  'fresh-from-produce': 'Fresh from produce',
+  'ready-to-cook': 'Ready to cook',
+  'ready-to-eat': 'Ready to eat',
+}
+
+const AUDIENCE_LABEL: Record<Plan['audience'], string> = {
+  adults: 'Adults',
+  kids: 'Kids',
+  special: 'Special',
+}
 export const PlanCard: React.FC<{ plan: Plan; whatsapp?: null | string }> = ({
   plan,
   whatsapp,
@@ -39,13 +50,27 @@ export const PlanCard: React.FC<{ plan: Plan; whatsapp?: null | string }> = ({
 
   return (
     <article className="border-line bg-card relative flex flex-col rounded-lg border p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none sm:p-8">
-      {!plan.available ? (
-        <span className="bg-gold-400 text-green-900 rounded-pill mb-4 inline-flex w-fit px-3 py-1 text-xs font-bold tracking-wide uppercase">
-          Paused
-        </span>
-      ) : null}
+      <div className="flex flex-wrap items-center gap-2">
+        {plan.category ? (
+          <span className="bg-green-100 text-green-700 rounded-pill inline-flex px-3 py-1 text-xs font-bold tracking-wide uppercase">
+            {CATEGORY_LABEL[plan.category]}
+          </span>
+        ) : null}
 
-      <h3 className="text-h3">{plan.title}</h3>
+        {plan.audience ? (
+          <span className="bg-gold-100 text-gold-600 rounded-pill inline-flex px-3 py-1 text-xs font-bold tracking-wide uppercase">
+            {AUDIENCE_LABEL[plan.audience]}
+          </span>
+        ) : null}
+
+        {!plan.available ? (
+          <span className="bg-gold-400 text-green-900 rounded-pill inline-flex px-3 py-1 text-xs font-bold tracking-wide uppercase">
+            Paused
+          </span>
+        ) : null}
+      </div>
+
+      <h3 className="text-h3 mt-3">{plan.title}</h3>
 
       {plan.description ? (
         <RichText

@@ -1024,6 +1024,14 @@ export interface Plan {
     id?: string | null;
   }[];
   /**
+   * How the meal reaches the customer. Shown as a label on the plan card.
+   */
+  category: 'ready-to-cook' | 'ready-to-eat' | 'fresh-from-produce';
+  /**
+   * Who the plan is for. Shown as a label on the plan card, next to the category.
+   */
+  audience: 'kids' | 'adults' | 'special';
+  /**
    * Off means the plan shows a paused label and cannot be bought.
    */
   available?: boolean | null;
@@ -1824,6 +1832,8 @@ export interface PlansSelect<T extends boolean = true> {
         price?: T;
         id?: T;
       };
+  category?: T;
+  audience?: T;
   available?: T;
   updatedAt?: T;
   createdAt?: T;

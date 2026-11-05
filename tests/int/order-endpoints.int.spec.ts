@@ -128,6 +128,8 @@ const createPlan = async (overrides: Partial<{ available: boolean; title: string
       ],
       slug: `${run}-${planIDs.length}-${Math.random().toString(36).slice(2, 8)}`,
       title: 'Lunch plan',
+      category: 'ready-to-eat',
+      audience: 'adults',
       ...overrides,
     },
     depth: 0,
