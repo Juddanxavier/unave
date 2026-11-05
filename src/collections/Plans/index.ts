@@ -2,6 +2,7 @@ import type { CollectionConfig } from 'payload'
 
 import { anyone } from '../../access/anyone'
 import { isStaff } from '../../access/isStaff'
+import { PLAN_CATEGORY_VALUES } from '../../utilities/plansCategoryCopy'
 
 import { revalidatePlans, revalidatePlansDelete } from './hooks/revalidatePlans'
 
@@ -46,6 +47,18 @@ export const Plans: CollectionConfig = {
       type: 'text',
       required: true,
       unique: true,
+      validate: (value: null | string | undefined) => {
+        // Spec 0008, AC-7: the three category slugs are reserved, because
+        // /plans/<category> is a category page. A lowercase comparison so
+        // "Ready-To-Cook" cannot slip past the rule either.
+        if (typeof value !== 'string' || value.trim().length === 0) return true
+
+        if ((PLAN_CATEGORY_VALUES as readonly string[]).includes(value.trim().toLowerCase())) {
+          return 'This slug is reserved for the category pages. Add a word, for example "lunch-plan".'
+        }
+
+        return true
+      },
       admin: {
         description: 'Lowercase, with dashes instead of spaces. Anchors the plan on /plans and travels in checkout links.',
       },

@@ -3,6 +3,8 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import { unstable_cache } from 'next/cache'
 
+import { PLAN_CATEGORY_VALUES } from '@/utilities/plansCategoryCopy'
+
 const getPagesSitemap = unstable_cache(
   async () => {
     const payload = await getPayload({ config })
@@ -44,6 +46,11 @@ const getPagesSitemap = unstable_cache(
         loc: `${SITE_URL}/plans`,
         lastmod: dateFallback,
       },
+      // Spec 0008, AC-6: one entry per plan category page.
+      ...PLAN_CATEGORY_VALUES.map((category) => ({
+        loc: `${SITE_URL}/plans/${category}`,
+        lastmod: dateFallback,
+      })),
     ]
 
     const sitemap = results.docs

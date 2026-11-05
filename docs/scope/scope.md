@@ -20,6 +20,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 2 | About and contact | Slice 1 | in-progress |
 | 3 | Customer accounts | Slice 2 | in-progress |
 | 4 | Plans and payments | Slice 3 | in-progress |
+| 5 | Plan category pages | Slice 4 | in-progress |
 
 ## Removed
 
@@ -121,6 +122,21 @@ The kitchen sells plans through the site again, built fresh rather than restored
 - [ ] Review it (fresh model): `/check review plans and payments`
 - [ ] Document it: `/document plans and payments`
 Spec [0007](../specs/0007-plans-cart-and-payments/index.md) · code in `src/collections/Plans/`, `src/collections/Orders/`, `src/utilities/razorpay.ts`, `src/components/Store/`, `src/app/(frontend)/(site)/plans`, `src/app/(frontend)/(site)/checkout`, `src/app/(frontend)/(site)/order-placed/`, `src/app/(frontend)/api/razorpay/`, `src/email/templates/Order.tsx`, `src/migrations/`
+
+## Slice 4: Browsing by category
+
+### 5. Plan category pages · in-progress
+One page per plan category (`/plans/ready-to-cook`, `/plans/ready-to-eat`, `/plans/fresh-from-produce`) with an accessible audience filter (All, Kids, Adults, Special) and the plan cards each category owns. Copy lives in code, plan data comes from the Plans collection, and the category badges on plan cards become the links that lead there.
+**Done when:** all three pages render with their own band, grid and filter, unknown category slugs render not found, empty categories and empty filters show the WhatsApp empty state card, and the sitemap carries the three URLs.
+- [x] Design it (spec): `/architect plan category pages`
+- [x] Build it: `/develop plan category pages`
+   - [x] Shared category module and reserved category slugs (AC-1, AC-6, AC-7)
+   - [x] The category page: band, grid and not found (AC-1, AC-4)
+   - [x] Audience filter pills and the empty states (AC-2, AC-3)
+   - [x] Badge links, cross links and the sitemap (AC-5, AC-6)
+- [ ] Verify it: `/check verify plan category pages`
+- [ ] Test it: `/test plan category pages`
+Spec [0008](../specs/0008-plan-category-pages.md) · code in `src/utilities/plansCategoryCopy.ts`, `src/app/(frontend)/(site)/plans/[category]/`, `src/components/Store/PlanAudienceFilter.tsx`, `src/components/Store/PlanCard.tsx`, `src/collections/Plans/index.ts`, `src/app/(frontend)/(sitemaps)/pages-sitemap.xml/route.ts`
 
 ## Deferred
 

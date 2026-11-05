@@ -1,9 +1,11 @@
 import { Check } from 'lucide-react'
+import Link from 'next/link'
 import React from 'react'
 
 import RichText from '@/components/RichText'
 import type { Plan } from '@/payload-types'
 import { formatPaise } from '@/utilities/money'
+import { AUDIENCE_LABEL, CATEGORY_LABEL, categoryBadgeAriaLabel, planCategoryHref } from '@/utilities/plansCategoryCopy'
 
 import { PlanPurchase, type PlanDuration } from './PlanPurchase'
 
@@ -20,19 +22,11 @@ import { PlanPurchase, type PlanDuration } from './PlanPurchase'
  * with a gold label, its durations and prices readable, and nothing to buy.
  *
  * Prices come straight from the plan record, never from the browser, and they
- * are formatted in the one place money is ever formatted.
+ * are formatted in the one place money is ever formatted. The category badge is
+ * a link to that category's page (spec 0008, AC-5); the audience badge stays a
+ * plain label. Both label maps come from plansCategoryCopy, the one shared
+ * source, so a badge and its category page can never disagree.
  */
-const CATEGORY_LABEL: Record<Plan['category'], string> = {
-  'fresh-from-produce': 'Fresh from produce',
-  'ready-to-cook': 'Ready to cook',
-  'ready-to-eat': 'Ready to eat',
-}
-
-const AUDIENCE_LABEL: Record<Plan['audience'], string> = {
-  adults: 'Adults',
-  kids: 'Kids',
-  special: 'Special',
-}
 export const PlanCard: React.FC<{ plan: Plan; whatsapp?: null | string }> = ({
   plan,
   whatsapp,
@@ -52,9 +46,13 @@ export const PlanCard: React.FC<{ plan: Plan; whatsapp?: null | string }> = ({
     <article className="border-line bg-card relative flex flex-col rounded-lg border p-7 shadow-sm transition duration-200 hover:-translate-y-1 hover:shadow-md motion-reduce:transform-none motion-reduce:transition-none sm:p-8">
       <div className="flex flex-wrap items-center gap-2">
         {plan.category ? (
-          <span className="bg-green-100 text-green-700 rounded-pill inline-flex px-3 py-1 text-xs font-bold tracking-wide uppercase">
+          <Link
+            aria-label={categoryBadgeAriaLabel(plan.category)}
+            className="bg-green-100 text-green-700 rounded-pill inline-flex px-3 py-1 text-xs font-bold tracking-wide uppercase transition-colors hover:bg-green-200 focus-visible:ring-[3px] focus-visible:ring-green-500 focus-visible:ring-offset-2 focus-visible:outline-none motion-reduce:transition-none"
+            href={planCategoryHref(plan.category)}
+          >
             {CATEGORY_LABEL[plan.category]}
-          </span>
+          </Link>
         ) : null}
 
         {plan.audience ? (
