@@ -1,7 +1,7 @@
 # 0008. Plan category pages
 
 **Date**: 2026-11-05
-**Status**: In progress (built, pending verify)
+**Status**: Accepted
 
 ## Summary
 
