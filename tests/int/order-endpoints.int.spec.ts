@@ -133,6 +133,9 @@ const createPlan = async (overrides: Partial<{ available: boolean; title: string
       ...overrides,
     },
     depth: 0,
+    // The revalidatePlans hook calls Next's revalidateTag, which only exists
+    // inside the Next runtime these specs do not run in.
+    context: { disableRevalidate: true },
     overrideAccess: true,
   })) as Plan
 
@@ -255,7 +258,7 @@ afterAll(async () => {
 
   for (const id of planIDs) {
     try {
-      await payload.delete({ collection: 'plans', id, overrideAccess: true })
+      await payload.delete({ collection: 'plans', id, overrideAccess: true, context: { disableRevalidate: true } })
     } catch {
       // Best effort cleanup.
     }

@@ -203,6 +203,9 @@ beforeAll(async () => {
       audience: 'adults',
     },
     depth: 0,
+    // The revalidatePlans hook calls Next's revalidateTag, which only exists
+    // inside the Next runtime this spec does not run in.
+    context: { disableRevalidate: true },
     overrideAccess: true,
   })
 
@@ -225,7 +228,7 @@ afterAll(async () => {
   }
 
   try {
-    await payload.delete({ collection: 'plans', id: planId, overrideAccess: true })
+    await payload.delete({ collection: 'plans', id: planId, overrideAccess: true, context: { disableRevalidate: true } })
   } catch {
     // Best effort cleanup.
   }
