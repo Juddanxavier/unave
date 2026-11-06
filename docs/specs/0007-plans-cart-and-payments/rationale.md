@@ -103,3 +103,24 @@ What changed:
 - A migration deletes rows that were never paid and drops the status column.
 
 Why: the pending row existed only to be flipped later, and it carried the cost of abandoned checkouts. Putting the intent on the gateway order removes the local state entirely while still letting the webhook record a payment whose browser never came back. The tradeoff is that a long kitchen note is capped on the gateway order, and an abandoned checkout leaves no local trace, which is the point.
+
+## Revision, 2026-11-06: the cart returns
+
+> ⚠️ Premise note: this revision deliberately reverses the removal below, made the day before. The removal's reasons were real and stay true: a cart buys complexity for a one product shop. What changed is the premise it rested on: the kitchen has concrete products coming (combos, add ons) that make sense together in one basket, so the cost is now paid for a known need, not avoided for a hypothetical one. The revision restores the cart with the removal's own lessons built in, rather than pretending the removal never happened.
+
+The trigger is upcoming products, and the engineer chose the shape in four answers:
+
+- **Restore the old shape**: any open plan, one line per plan and duration, the same plan and duration twice refused, a line cap. The cap drops from the old 20 to 10 because the checkout intent rides on the gateway order's notes and ten lines fit comfortably where twenty may not.
+- **A cart page and a header count**: `/cart` for review and removal, and a live count in the header so the basket is visible from anywhere.
+- **Add to cart only**: every open plan card carries a duration choice and one Add to cart control; the direct Buy now checkout link is retired, so every purchase flows through the basket. This also simplifies the cards (one primary action each, per the design contract).
+- **Sign in at checkout stays** (the contract amendment from this spec stands, unamended).
+
+What the revision keeps from the removal's lessons, so the old pain points do not come back with the cart:
+
+- The cookie carries identifiers only (plan slug, duration label). The old price matching rule existed because the cookie carried prices; that class of tampering stays dead, and totals are computed from the database at every render and at order creation.
+- The cart never lives on the server, so the old merge rules have nothing to merge: the cookie survives sign in untouched.
+- Only completed payments are recorded, unchanged: the multi line intent rides on the gateway order's notes (lines as indexed note keys, each value short), and one paid row holds up to ten immutable line snapshots.
+
+The AC renumbering, since the old set was written for one plan per order: old AC-2 (direct link) splits into the new AC-2 (cart add rules) and AC-3 (cart page); old AC-3 becomes AC-4; old AC-4 becomes AC-5; old AC-5 becomes AC-6; old AC-6 becomes AC-7; old AC-7 becomes AC-8; old AC-8 becomes AC-9; old AC-9 becomes AC-10; old AC-10 becomes AC-11; old AC-11 becomes AC-12; old AC-12 becomes AC-13. AC-1 keeps its number and loses the buy wording.
+
+The tradeoff accepted: the cart's complexity is back, bounded by the cap, the identifier only cookie and the no server cart rule. The engineer chose this knowingly for a concrete pipeline of products, and the build plan tasks 14 to 19 carry it.

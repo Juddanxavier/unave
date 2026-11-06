@@ -20,7 +20,7 @@ _These are recommendations to keep your build orderly, not requirements. Skip an
 | 2 | About and contact | Slice 1 | in-progress |
 | 3 | Customer accounts | Slice 2 | in-progress |
 | 4 | Plans and payments | Slice 3 | in-progress |
-| 5 | Plan category pages | Slice 4 | done |
+| 5 | Plan category pages | Slice 4 | in-progress |
 
 ## Removed
 
@@ -106,9 +106,9 @@ Spec [0005](../specs/0005-customer-accounts/index.md) · code in `src/collection
 ## Slice 3: Ordering
 
 ### 4. Plans and payments · in-progress (building) · GA
-The kitchen sells plans through the site again, built fresh rather than restored from the removed build. A plan is a duration paid upfront, say a week or a month of meals, collected through an online payment gateway (Razorpay is the named pick; the spec owns that decision). A plan card sends the buyer straight to checkout with that plan and duration, one plan per order, checkout requires sign in, and staff manage plans and see orders and payments in the Payload admin.
+The kitchen sells plans through the site again, built fresh rather than restored from the removed build. A plan is a duration paid upfront, say a week or a month of meals, collected through an online payment gateway (Razorpay is the named pick; the spec owns that decision). A plan card carries a duration choice and one Add to cart control, the basket lives in a browser cookie (identifiers only, 10 line cap, duplicates refused), the cart page shows live prices, checkout requires sign in and pays the whole basket once, and staff manage plans and see orders with all their items in the Payload admin. (The 2026-11-06 spec revision restored the cart that the earlier revision had removed; the acceptance criteria were renumbered.)
 **Supersedes:** the "an account only saves details" promise in `design.md`: buying now requires an account, so that contract changes at spec time, while browsing and messaging stay open to everyone.
-**Done when:** a visitor can browse plans and start a purchase without an account, sign in at checkout, pay once for the plan they chose, and the kitchen sees the order and can edit plans, prices and availability in the admin; the chrome copy that says orders come by message is updated in the CMS.
+**Done when:** a visitor can browse plans and fill a basket without an account, review the cart at live prices, sign in at checkout, pay once for the whole basket, and the kitchen sees each order with its lines and can edit plans, prices and availability in the admin; the chrome copy no longer says one plan per order.
 - [x] Design it (spec): `/architect plans and payments`
 - [ ] Build it: `/develop plans and payments`
    - [x] Collections, migration and access rules (AC-4, AC-9, AC-10)
@@ -117,6 +117,11 @@ The kitchen sells plans through the site again, built fresh rather than restored
    - [x] Full pages, the chrome migration and the design contract amendment (AC-1, AC-9, AC-11, AC-12)
    - [x] Int and e2e tests and the typecheck gate (AC-1 through AC-12)
    - [x] Cart removal revision: direct buy path, single plan orders, the cart surface removed, tests rebuilt (AC-1 through AC-11)
+   - [ ] Cart revision, milestone 1: cart cookie core (identifiers only, 10 line cap, duplicate and paused refusals) and Add to cart on every open card, Buy now retired (AC-1, AC-2)
+   - [ ] Cart revision, milestone 2: the `/cart` page (live prices, stale markers, no JavaScript removal) and the header count (AC-3)
+   - [ ] Cart revision, milestone 3: multi line checkout and order creation from the cookie, the gateway notes intent (AC-4, AC-5)
+   - [ ] Cart revision, milestone 4: confirmation with all items, mails, account list, admin and chrome copy (AC-6 to AC-13)
+   - [ ] Cart revision, milestone 5: tests and a fresh verify pass (all ACs)
 - [ ] Verify it: `/check verify plans and payments`
 - [ ] Test it: `/test plans and payments`
 - [ ] Review it (fresh model): `/check review plans and payments`
@@ -125,9 +130,9 @@ Spec [0007](../specs/0007-plans-cart-and-payments/index.md) · code in `src/coll
 
 ## Slice 4: Browsing by category
 
-### 5. Plan category pages · done
-One page per plan category (`/plans/ready-to-cook`, `/plans/ready-to-eat`, `/plans/fresh-from-produce`) with an accessible audience filter (All, Kids, Adults, Special) and the plan cards each category owns. Copy lives in code, plan data comes from the Plans collection, and the category badges on plan cards become the links that lead there.
-**Done when:** all three pages render with their own band, grid and filter, unknown category slugs render not found, empty categories and empty filters show the WhatsApp empty state card, and the sitemap carries the three URLs.
+### 5. Plan category pages · in-progress (subcategory revision)
+One page per plan category (`/plans/ready-to-cook`, `/plans/ready-to-eat`, `/plans/fresh-from-produce`) with an accessible audience filter (All, Kids, Adults, Special) and the plan cards each category owns. Copy lives in code, plan data comes from the Plans collection, and the category badges on plan cards become the links that lead there. The 2026-11-06 revision adds a subcategory layer: an admin managed option list per category (title and category, no slug), required on every plan with no default, and a second filter row on the category pages that combines with the audience pills.
+**Done when:** all three pages render with their own band, grid and filters, unknown category slugs render not found, empty categories and empty filter combinations show the WhatsApp empty state card, the sitemap carries the three URLs, and the kitchen owns the subcategory list per category in the admin.
 - [x] Design it (spec): `/architect plan category pages`
 - [x] Build it: `/develop plan category pages`
    - [x] Shared category module and reserved category slugs (AC-1, AC-6, AC-7)
@@ -136,6 +141,11 @@ One page per plan category (`/plans/ready-to-cook`, `/plans/ready-to-eat`, `/pla
    - [x] Badge links, cross links and the sitemap (AC-5, AC-6)
 - [x] Verify it: `/check verify plan category pages`
 - [x] Test it: `/test plan category pages`
+- [ ] Subcategory revision, milestone 1: the Subcategories collection, the required no default relation with category match validation, and the guarded migration (AC-8, AC-9)
+- [ ] Subcategory revision, milestone 2: the second filter row on the category pages, combined client side (AC-10)
+- [ ] Subcategory revision, milestone 3: tests and a fresh verify pass (AC-8 to AC-10)
+- [ ] Verify it (revision): `/check verify plan subcategory filters`
+- [ ] Test it (revision): `/test plan subcategory filters`
 Spec [0008](../specs/0008-plan-category-pages.md) · code in `src/utilities/plansCategoryCopy.ts`, `src/app/(frontend)/(site)/plans/[category]/`, `src/components/Store/PlanAudienceFilter.tsx`, `src/components/Store/PlanCard.tsx`, `src/collections/Plans/index.ts`, `src/app/(frontend)/(sitemaps)/pages-sitemap.xml/route.ts`
 
 ## Deferred
